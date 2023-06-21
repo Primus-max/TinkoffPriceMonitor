@@ -21,11 +21,28 @@
         <!-- Основное содержимое -->
         <TabControl Grid.Row="1">
             <!-- Вкладка с выводом сообщений -->
+            <!-- Вкладка с выводом сообщений -->
             <TabItem Header="Монитор">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel Margin="10" Name="messageStackPanel"/>
+                    <StackPanel Margin="10" Name="messageStackPanel">
+                        <TextBlock Text="Сообщения о изменении цены" FontSize="16" FontWeight="Bold" Margin="0 0 0 10"/>
+
+                        <!-- Пример элементов управления для вывода сообщений -->
+                        <ItemsControl ItemsSource="{Binding Path=PriceChangeMessages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0 0 0 5">
+                                        <TextBlock Text="{Binding Path=InstrumentName}" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Path=MessageText}" TextWrapping="Wrap"/>
+                                        <Separator/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </ScrollViewer>
             </TabItem>
+
 
             <!-- Вкладка с настройками -->
             <TabItem Header="Настройки">
