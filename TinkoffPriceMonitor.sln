@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32505.173
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinkoffPriceMonitor", "TinkoffPriceMonitor.csproj", "{66673C5A-E8E3-44B8-8158-25DB3911781D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{66673C5A-E8E3-44B8-8158-25DB3911781D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66673C5A-E8E3-44B8-8158-25DB3911781D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66673C5A-E8E3-44B8-8158-25DB3911781D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66673C5A-E8E3-44B8-8158-25DB3911781D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EED3C8FE-6E6D-4AA4-90F0-CFFFDC0F58CE}
+	EndGlobalSection
+EndGlobal
