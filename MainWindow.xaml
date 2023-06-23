@@ -21,7 +21,6 @@
         <!-- Основное содержимое -->
         <TabControl Grid.Row="1">
             <!-- Вкладка с выводом сообщений -->
-            <!-- Вкладка с выводом сообщений -->
             <TabItem Header="Монитор">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Margin="10" Name="messageStackPanel">
@@ -51,13 +50,14 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="149*"/>
+                        <RowDefinition Height="76*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Настройки" FontSize="16" FontWeight="Bold" Margin="10"/>
+                    <TextBlock Grid.Row="0" Text="Настройки" FontSize="16" FontWeight="Bold" Margin="10,10,10,10"/>
 
                     <!-- Группа 1 -->
-                    <StackPanel Grid.Row="1" Margin="10">
+                    <StackPanel Grid.Row="1" Margin="10,10,10,10">
                         <TextBlock Text="Группа тикеров №1" FontWeight="Bold"/>
                         <TextBox Text="{Binding Path=TickerGroup1, Mode=TwoWay}"/>
                         <TextBlock Text="Процент изменения цены"/>
@@ -67,7 +67,7 @@
                     </StackPanel>
 
                     <!-- Группа 2 -->
-                    <StackPanel Grid.Row="2" Margin="10">
+                    <StackPanel Grid.Row="2" Margin="10,10,10,10">
                         <TextBlock Text="Группа тикеров №2" FontWeight="Bold"/>
                         <TextBox Text="{Binding Path=TickerGroup2, Mode=TwoWay}"/>
                         <TextBlock Text="Процент изменения цены"/>
@@ -77,7 +77,7 @@
                     </StackPanel>
 
                     <!-- Группа 3 -->
-                    <StackPanel Grid.Row="3" Margin="10">
+                    <StackPanel Grid.Row="3" Margin="10,10,10,10" Grid.RowSpan="2">
                         <TextBlock Text="Группа тикеров №3" FontWeight="Bold"/>
                         <TextBox Text="{Binding Path=TickerGroup3, Mode=TwoWay}"/>
                         <TextBlock Text="Процент изменения цены"/>
@@ -86,7 +86,10 @@
                         <TextBox Text="{Binding Path=IntervalGroup3, Mode=TwoWay}"/>
                     </StackPanel>
 
-                    <Button Grid.Row="4" Content="Сохранить настройки" Margin="10"/>
+                    <Button 
+                        Grid.Row="4"
+                        Content="Сохранить настройки" 
+                        Margin="10,10,10,10"/>
                 </Grid>
             </TabItem>
         </TabControl>

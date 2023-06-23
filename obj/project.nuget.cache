@@ -1,8 +1,29 @@
 {
   "version": 2,
-  "dgSpecHash": "FFDBejCabjdBICODAT6IKJxK+RoJWkEyUHGPgcmoNdqL60H0AZtqc9reAfAGaZ47hgv0jGYzHYTcYnDf7Va6gw==",
+  "dgSpecHash": "0sV+J1h+T3QbFvaHXmca8j1YeP0MjYrCxvAjfMywWvx2xV5fEkZ3Ip+7p/nl3NBb63AmooY9vc/EQHdTAvWXrA==",
   "success": true,
   "projectFilePath": "Z:\\Programming\\ProjectC#\\TinkoffPriceMonitor\\TinkoffPriceMonitor.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\google.protobuf\\3.21.8\\google.protobuf.3.21.8.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\grpc.core.api\\2.49.0\\grpc.core.api.2.49.0.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\grpc.net.client\\2.49.0\\grpc.net.client.2.49.0.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\grpc.net.clientfactory\\2.49.0\\grpc.net.clientfactory.2.49.0.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\grpc.net.common\\2.49.0\\grpc.net.common.2.49.0.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\macross.json.extensions\\1.5.0\\macross.json.extensions.1.5.0.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.configuration\\3.0.3\\microsoft.extensions.configuration.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\3.0.3\\microsoft.extensions.configuration.abstractions.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.configuration.binder\\3.0.3\\microsoft.extensions.configuration.binder.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\3.0.3\\microsoft.extensions.dependencyinjection.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\3.0.3\\microsoft.extensions.dependencyinjection.abstractions.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.http\\3.0.3\\microsoft.extensions.http.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.logging\\3.0.3\\microsoft.extensions.logging.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\3.0.3\\microsoft.extensions.logging.abstractions.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.options\\3.0.3\\microsoft.extensions.options.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\microsoft.extensions.primitives\\3.0.3\\microsoft.extensions.primitives.3.0.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\system.text.json\\4.7.0\\system.text.json.4.7.0.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\tinkoff.investapi\\0.6.1\\tinkoff.investapi.0.6.1.nupkg.sha512",
+    "C:\\Users\\SKTV-1\\.nuget\\packages\\tinkoff.trading.openapi\\1.7.5\\tinkoff.trading.openapi.1.7.5.nupkg.sha512"
+  ],
   "logs": []
 }
