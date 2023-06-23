@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
 using TinkoffPriceMonitor.ApiServices;
@@ -62,7 +63,7 @@ namespace TinkoffPriceMonitor.ViewModels
             {
                 // Обработка ошибки чтения файла настроек
                 // Можно выбросить исключение или выполнить другую логику обработки ошибки
-                Console.WriteLine($"Ошибка чтения файла настроек: {ex.Message}");
+                MessageBox.Show($"Ошибка чтения файла настроек: {ex.Message}");
             }
 
             return instruments;
