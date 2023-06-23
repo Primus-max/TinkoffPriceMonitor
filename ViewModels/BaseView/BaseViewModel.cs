@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TinkoffPriceMonitor.ViewModels.BaseView
 {
-    internal class BaseViewModel : INotifyPropertyChanged, IDisposable
+    public class BaseViewModel : INotifyPropertyChanged, IDisposable
     {
         public virtual event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnProperty([CallerMemberName] string PropertyName = null)
