@@ -12,7 +12,7 @@ using Tinkoff.Trading.OpenApi.Models;
 using Tinkoff.InvestApi;
 using Grpc.Net.ClientFactory;
 
-namespace TinkoffPriceMonitor
+namespace TinkoffPriceMonitor.Views.Windows
 {
     //public partial class MainWindow : Window
     //{
