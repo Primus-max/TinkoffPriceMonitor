@@ -58,39 +58,39 @@
                     <TextBlock Grid.Row="0" Text="Настройки" FontSize="16" FontWeight="Bold" Margin="10,10,10,10"/>
 
                     <!-- Группа 1 -->
-                    <StackPanel Grid.Row="1" Margin="10,10,10,10">
+                    <StackPanel x:Name="Group1" Grid.Row="1" Margin="10,10,10,10">
                         <TextBlock Text="Группа тикеров №1" FontWeight="Bold"/>
-                        <TextBox Text="{Binding Path=TickerGroup1, Mode=TwoWay}"/>
+                        <TextBox x:Name="TickerGroup1"/>
                         <TextBlock Text="Процент изменения цены"/>
-                        <TextBox Text="{Binding Path=PercentageThresholdGroup1, Mode=TwoWay}"/>
+                        <TextBox x:Name="PercentageThresholdGroup1"/>
                         <TextBlock Text="Временной интервал"/>
-                        <TextBox Text="{Binding Path=IntervalGroup1, Mode=TwoWay}"/>
+                        <TextBox x:Name="IntervalGroup1"/>
                     </StackPanel>
 
-                    <!-- Группа 2 -->
-                    <StackPanel Grid.Row="2" Margin="10,10,10,10">
+                    <StackPanel x:Name="Group2" Grid.Row="2" Margin="10,10,10,10">
                         <TextBlock Text="Группа тикеров №2" FontWeight="Bold"/>
-                        <TextBox Text="{Binding Path=TickerGroup2, Mode=TwoWay}"/>
+                        <TextBox x:Name="TickerGroup2"/>
                         <TextBlock Text="Процент изменения цены"/>
-                        <TextBox Text="{Binding Path=PercentageThresholdGroup2, Mode=TwoWay}"/>
+                        <TextBox x:Name="PercentageThresholdGroup2"/>
                         <TextBlock Text="Временной интервал"/>
-                        <TextBox Text="{Binding Path=IntervalGroup2, Mode=TwoWay}"/>
+                        <TextBox x:Name="IntervalGroup2"/>
                     </StackPanel>
 
-                    <!-- Группа 3 -->
-                    <StackPanel Grid.Row="3" Margin="10,10,10,10" Grid.RowSpan="2">
+                    <StackPanel x:Name="Group3" Grid.Row="3" Margin="10,10,10,10" Grid.RowSpan="2">
                         <TextBlock Text="Группа тикеров №3" FontWeight="Bold"/>
-                        <TextBox Text="{Binding Path=TickerGroup3, Mode=TwoWay}"/>
+                        <TextBox x:Name="TickerGroup3"/>
                         <TextBlock Text="Процент изменения цены"/>
-                        <TextBox Text="{Binding Path=PercentageThresholdGroup3, Mode=TwoWay}"/>
+                        <TextBox x:Name="PercentageThresholdGroup3"/>
                         <TextBlock Text="Временной интервал"/>
-                        <TextBox Text="{Binding Path=IntervalGroup3, Mode=TwoWay}"/>
+                        <TextBox x:Name="IntervalGroup3"/>
                     </StackPanel>
+
 
                     <Button
                         Grid.Row="4"
                         Content="Сохранить настройки"
-                        Margin="10,10,10,10"/>
+                        Margin="10,10,10,10"
+                        Click="SaveSettings_Click"/>
                 </Grid>
             </TabItem>
         </TabControl>
