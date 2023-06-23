@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -16,6 +17,12 @@ namespace TinkoffPriceMonitor.Views.Windows
             InitializeComponent();
             DataContext = new MainWindowViewModel();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadSettings();
+        }
+
 
         public void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
@@ -97,11 +104,40 @@ namespace TinkoffPriceMonitor.Views.Windows
             {
                 string json = JsonConvert.SerializeObject(settings);
                 File.WriteAllText("appSettings.json", json);
+
+                MessageBox.Show("Настройки сохранены", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+
             }
             catch (Exception ex)
             {
 
             }
+        }
+
+        private void LoadSettings()
+        {
+            try
+            {
+                string json = File.ReadAllText("appSettings.json");
+                AppSettings settings = JsonConvert.DeserializeObject<AppSettings>(json);
+
+                TickerGroup1.Text = settings.TickerGroup1 ?? string.Empty;
+                PercentageThresholdGroup1.Text = settings.PercentageThresholdGroup1.ToString(CultureInfo.InvariantCulture);
+                IntervalGroup1.Text = settings.IntervalGroup1.ToString();
+
+                TickerGroup2.Text = settings.TickerGroup2 ?? string.Empty;
+                PercentageThresholdGroup2.Text = settings.PercentageThresholdGroup2.ToString(CultureInfo.InvariantCulture);
+                IntervalGroup2.Text = settings.IntervalGroup2.ToString();
+
+                TickerGroup3.Text = settings.TickerGroup3 ?? string.Empty;
+                PercentageThresholdGroup3.Text = settings.PercentageThresholdGroup3.ToString(CultureInfo.InvariantCulture);
+                IntervalGroup3.Text = settings.IntervalGroup3.ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось загрузить настройки {ex.Message}");
+            }
+
         }
 
     }
