@@ -47,19 +47,7 @@ namespace TinkoffPriceMonitor.ViewModels
 
         public void AddTickerGroup()
         {
-            TickerGroup newGroup = new TickerGroup
-            {
-                GroupName = "Group 1",
-                Tickers = new List<string>
-                {
-                    "AAPL",
-                    "GOOGL",
-                    "MSFT"
-                },
-                PercentageThreshold = 0.05,
-                Interval = 60
-            };
-
+            TickerGroup newGroup = new TickerGroup();
 
             TickerGroups.Add(newGroup);
         }

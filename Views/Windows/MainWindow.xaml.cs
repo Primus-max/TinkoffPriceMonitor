@@ -29,12 +29,10 @@ namespace TinkoffPriceMonitor.Views.Windows
         {
             _viewModel.AddTickerGroup();
         }
-
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.SaveDataToJson();
         }
-
         private void DeleteGroup_Click(object sender, RoutedEventArgs e)
         {
             // Получаем DataContext выбранной группы
