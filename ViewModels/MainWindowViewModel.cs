@@ -21,6 +21,8 @@ namespace TinkoffPriceMonitor.ViewModels
         #region Приватные свойства
         private InvestApiClient? _client = null;
         private ObservableCollection<PriceChangeMessage> _priceChangeMessages = null;
+        private TickerPriceStorage _tickerPriceStorage;
+        private ObservableCollection<TickerGroup> _tickerGroups;
         #endregion
 
         #region Публичные свойства
@@ -29,33 +31,34 @@ namespace TinkoffPriceMonitor.ViewModels
             get => _priceChangeMessages;
             set => Set(ref _priceChangeMessages, value);
         }
-        #endregion
-
-        private TickerPriceStorage _tickerPriceStorage;
-
-        private ObservableCollection<TickerGroup> _tickerGroups;
 
         public ObservableCollection<TickerGroup> TickerGroups
         {
             get => _tickerGroups;
             set => Set(ref _tickerGroups, value);
         }
+        #endregion
+
 
         public MainWindowViewModel()
         {
-
+            // Инициализация источника данных для отображения (настройки)
             TickerGroups = new ObservableCollection<TickerGroup>();
-            LoadTickerGroups();
 
+            #region Методы
+            LoadTickerGroups();
             Initialize();
+            #endregion
         }
 
+        // Метод инициализации клиента и некоторых методов при старте программы
         private async Task Initialize()
         {
             _client = await Creaters.CreateClientAsync();
             await LoadTickerPricesAsync();
         }
 
+        // Метод загрузки и сохранения цен в барном файле для отображения и дальнейшего сравнения
         private async Task LoadTickerPricesAsync()
         {
             var tickerGroups = new List<TickerPriceStorage.TickerGroup>();
