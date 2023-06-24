@@ -4,22 +4,23 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 [Serializable]
-public class TickerGroup
-{
-    public string GroupName { get; set; }
-    public List<TickerPrice> Tickers { get; set; }
-}
-
-[Serializable]
-public class TickerPrice
-{
-    public string Ticker { get; set; }
-    public decimal Price { get; set; }
-}
-
 public class TickerPriceStorage
 {
     private string filePath = "tickerPrices.dat";
+
+    [Serializable]
+    public class TickerGroup
+    {
+        public string GroupName { get; set; }
+        public List<TickerPrice> Tickers { get; set; }
+    }
+
+    [Serializable]
+    public class TickerPrice
+    {
+        public string Ticker { get; set; }
+        public decimal Price { get; set; }
+    }
 
     public void SaveTickerPrice(List<TickerGroup> tickerGroups)
     {

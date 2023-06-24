@@ -31,180 +31,40 @@ namespace TinkoffPriceMonitor.ViewModels
         }
         #endregion
 
+        private ObservableCollection<TickerGroup> _tickerGroups;
 
+        public ObservableCollection<TickerGroup> TickerGroups
+        {
+            get => _tickerGroups;
+            set => Set(ref _tickerGroups, value);
+        }
 
         public MainWindowViewModel()
         {
+            TickerGroups = new ObservableCollection<TickerGroup>();
 
-            InitializeClientAsync();
-
-
-            AppSettings Tikets = LoadAppSettingsFromFile();
 
         }
 
-        // Получаю клиента для работы
-        private async void InitializeClientAsync()
+        public void AddTickerGroup()
         {
-            _client = await Creaters.CreateClientAsync();
-
-            // Ваш код для получения настроек и инструментов
-
-            AppSettings tickersFromAppSettings = LoadAppSettingsFromFile();
-            SharesResponse allInstruments = await _client?.Instruments?.SharesAsync();
-            //string[] tickersGroup1 = ParseTickerGroup(tickersFromAppSettings.TickerGroup1);
-
-            //foreach (var ticker in tickersGroup1)
-            //{
-
-            //    foreach (var instrument in allInstruments.Instruments)
-            //    {
-            //        if (instrument is null) continue;
-            //        if (instrument.Ticker == ticker)
-            //        {
-            //            // instrument содержит полную информацию об инструменте, включая figi и другие свойства
-            //            var price = await Getters.GetUpdatedPrice(instrument, _client);
-            //            // Вы можете выполнить нужные действия с instrument и price
-            //        }
-            //        else
-            //        {
-            //            // Обработка случая, когда инструмент не найден по тикеру
-            //        }
-            //    }
-
-
-            //}
-
-
-
-
-            await FetchPriceChangeMessages();
-        }
-
-        public string[] ParseTickerGroup(string tickerGroup)
-        {
-            // Разделители для разбиения строки
-            char[] separators = { '|' };
-
-            // Разбиваем строку на массив тикеров
-            string[] tickers = tickerGroup.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-
-            return tickers;
-        }
-
-
-        //public static Instrument FindInstrumentByTicker(string ticker, SharesResponse instruments)
-        //{
-        //    return instruments.FirstOrDefault(x => x.Ticker == ticker);
-        //}
-
-        private async Task FetchPriceChangeMessages()
-        {
-            #region ТЕСТЫ ЗАПИСИ И ЧТЕНИЯ В БИНАРНИК
-            // Создаем экземпляр хранилища
-            TickerPriceStorage storage = new TickerPriceStorage();
-
-            // Создаем проверочные данные
-            List<TickerGroup> tickerGroups = new List<TickerGroup>();
-
-            TickerGroup group1 = new TickerGroup()
+            TickerGroup newGroup = new TickerGroup
             {
-                GroupName = "Group1",
-                Tickers = new List<TickerPrice>()
-            {
-                new TickerPrice() { Ticker = "GOOG", Price = 2500.75m },
-                new TickerPrice() { Ticker = "MSFT", Price = 300.50m },
-                new TickerPrice() { Ticker = "AAPL", Price = 150.25m }
-            }
+                GroupName = "Group 1",
+                Tickers = new List<string>
+                {
+                    "AAPL",
+                    "GOOGL",
+                    "MSFT"
+                },
+                PercentageThreshold = 0.05,
+                Interval = 60
             };
 
-            TickerGroup group2 = new TickerGroup()
-            {
-                GroupName = "Group2",
-                Tickers = new List<TickerPrice>()
-            {
-                new TickerPrice() { Ticker = "AMZN", Price = 3500.00m },
-                new TickerPrice() { Ticker = "FB", Price = 350.50m }
-            }
-            };
 
-            tickerGroups.Add(group1);
-            tickerGroups.Add(group2);
-
-            // Сохраняем данные
-            storage.SaveTickerPrice(tickerGroups);
-
-            // Загружаем данные
-            List<TickerGroup> loadedTickerGroups = storage.LoadTickerPrice();
-
-            // Выводим загруженные данные
-            foreach (TickerGroup group in loadedTickerGroups)
-            {
-                MessageBox.Show("Group Name: " + group.GroupName);
-                MessageBox.Show("Tickers:");
-
-                foreach (TickerPrice ticker in group.Tickers)
-                {
-                    MessageBox.Show("Ticker: " + ticker.Ticker);
-                    MessageBox.Show("Price: " + ticker.Price);
-                }
-            }
-            #endregion
-
-
-
-            var instruments = new List<Instrument>();
-            instruments.Add(new Instrument() { Figi = "BBG004S68B31" });
-            instruments.Add(new Instrument() { Figi = "BBG000TY1CD1" });
-
-            var nstruments = await _client?.Instruments?.SharesAsync();
-            Instrument instrument1 = new Instrument();
-
-
-            foreach (var instrument in nstruments.Instruments)
-            {
-                var adfasdf = instrument.Ticker;
-
-                if (adfasdf == "BELU")
-                {
-                    string figi1 = instrument.Figi;
-                }
-                if (adfasdf == "ALRS")
-                {
-                    string figi1 = instrument.Figi;
-                }
-            }
-
-            // Вызываем метод GetPriceChangeMessages и передаем список инструментов и клиента API
-            //var priceChangeMessages = await Getters.GetUpdatedPrices(instruments, _client);
-
-            // Далее вы можете обработать полученные priceChangeMessages в соответствии с вашими требованиями
-            // Например, можно отобразить их на экране или выполнить другие необходимые действия
-            // ...
-
-            // После обработки сообщений об изменении цен, вы можете выполнить другие действия или обновить интерфейс
-            // ...
+            TickerGroups.Add(newGroup);
         }
 
-        public AppSettings LoadAppSettingsFromFile()
-        {
-            string filePath = "appSettings.json";
-
-            try
-            {
-                if (File.Exists(filePath))
-                {
-                    string jsonContent = File.ReadAllText(filePath);
-                    return JsonConvert.DeserializeObject<AppSettings>(jsonContent);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при загрузке настроек: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            return new AppSettings();
-        }
 
     }
 }

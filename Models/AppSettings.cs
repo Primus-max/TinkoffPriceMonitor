@@ -8,15 +8,9 @@ namespace TinkoffPriceMonitor.Models
 {
     public class TickerGroup
     {
+        public string? GroupName { get; set; }
         public List<string>? Tickers { get; set; }
         public double PercentageThreshold { get; set; }
         public int Interval { get; set; }
     }
-
-    public class AppSettings
-    {
-        public List<TickerGroup>? TickerGroups { get; set; }
-
-    }
-
 }
