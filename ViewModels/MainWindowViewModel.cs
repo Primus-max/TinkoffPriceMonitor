@@ -38,6 +38,12 @@ namespace TinkoffPriceMonitor.ViewModels
             get => _tickerGroups;
             set => Set(ref _tickerGroups, value);
         }
+
+        private ObservableCollection<TrackedTickerInfo> PriceChangeItems
+        {
+            get => _priceChangeItems;
+            set => Set(ref _priceChangeItems, value);
+        }
         #endregion
 
 
