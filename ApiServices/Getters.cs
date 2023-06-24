@@ -10,7 +10,7 @@ namespace TinkoffPriceMonitor.ApiServices
 {
     public class Getters
     {
-        public static async Task<decimal> GetUpdatedPrice(Instrument instrument, InvestApiClient client)
+        public static async Task<decimal> GetUpdatedPrice(Share instrument, InvestApiClient client)
         {
             var request = new GetLastPricesRequest()
             {

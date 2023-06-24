@@ -39,7 +39,7 @@ namespace TinkoffPriceMonitor.ViewModels
             InitializeClientAsync();
 
 
-            AppSettings instruments = LoadAppSettingsFromFile();
+            AppSettings Tikets = LoadAppSettingsFromFile();
 
         }
 
@@ -48,10 +48,55 @@ namespace TinkoffPriceMonitor.ViewModels
         {
             _client = await Creaters.CreateClientAsync();
 
-            AppSettings instruments = LoadAppSettingsFromFile();
+            // Ваш код для получения настроек и инструментов
+
+            AppSettings tickersFromAppSettings = LoadAppSettingsFromFile();
+            SharesResponse allInstruments = await _client?.Instruments?.SharesAsync();
+            string[] tickersGroup1 = ParseTickerGroup(tickersFromAppSettings.TickerGroup1);
+
+            foreach (var ticker in tickersGroup1)
+            {
+
+                foreach (var instrument in allInstruments.Instruments)
+                {
+                    if (instrument is null) continue;
+                    if (instrument.Ticker == ticker)
+                    {
+                        // instrument содержит полную информацию об инструменте, включая figi и другие свойства
+                        var price = await Getters.GetUpdatedPrice(instrument, _client);
+                        // Вы можете выполнить нужные действия с instrument и price
+                    }
+                    else
+                    {
+                        // Обработка случая, когда инструмент не найден по тикеру
+                    }
+                }
+
+
+            }
+
+
+
 
             await FetchPriceChangeMessages();
         }
+
+        public string[] ParseTickerGroup(string tickerGroup)
+        {
+            // Разделители для разбиения строки
+            char[] separators = { '|' };
+
+            // Разбиваем строку на массив тикеров
+            string[] tickers = tickerGroup.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+            return tickers;
+        }
+
+
+        //public static Instrument FindInstrumentByTicker(string ticker, SharesResponse instruments)
+        //{
+        //    return instruments.FirstOrDefault(x => x.Ticker == ticker);
+        //}
 
         private async Task FetchPriceChangeMessages()
         {
@@ -131,7 +176,7 @@ namespace TinkoffPriceMonitor.ViewModels
             }
 
             // Вызываем метод GetPriceChangeMessages и передаем список инструментов и клиента API
-            var priceChangeMessages = await Getters.GetUpdatedPrices(instruments, _client);
+            //var priceChangeMessages = await Getters.GetUpdatedPrices(instruments, _client);
 
             // Далее вы можете обработать полученные priceChangeMessages в соответствии с вашими требованиями
             // Например, можно отобразить их на экране или выполнить другие необходимые действия

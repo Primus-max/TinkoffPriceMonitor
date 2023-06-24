@@ -16,7 +16,6 @@ Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\refint\Tin
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\TinkoffPriceMonitor.pdb
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\TinkoffPriceMonitor.genruntimeconfig.cache
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\ref\TinkoffPriceMonitor.dll
-Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\token.txt
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\Google.Protobuf.dll
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\Grpc.Core.Api.dll
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\Grpc.Net.Client.dll
