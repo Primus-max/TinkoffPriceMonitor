@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -44,6 +45,8 @@ namespace TinkoffPriceMonitor.ViewModels
         private async void InitializeClientAsync()
         {
             _client = await Creaters.CreateClientAsync();
+
+            AppSettings instruments = LoadAppSettingsFromFile();
 
             await FetchPriceChangeMessages();
         }
@@ -136,29 +139,27 @@ namespace TinkoffPriceMonitor.ViewModels
             // ...
         }
 
-
-        public async Task<List<Instrument>> LoadTickersFromFileAsync()
+        public AppSettings LoadAppSettingsFromFile()
         {
-            List<Instrument> instruments = new List<Instrument>();
             string filePath = "appSettings.json";
+
             try
             {
-                string[] tickerLines = await File.ReadAllLinesAsync(filePath);
-
-                foreach (string ticker in tickerLines)
+                if (File.Exists(filePath))
                 {
-                    instruments.Add(new Instrument { Figi = ticker });
+                    string jsonContent = File.ReadAllText(filePath);
+                    return JsonConvert.DeserializeObject<AppSettings>(jsonContent);
                 }
             }
             catch (Exception ex)
             {
-                // Обработка ошибки чтения файла настроек
-                // Можно выбросить исключение или выполнить другую логику обработки ошибки
-                MessageBox.Show($"Ошибка чтения файла настроек: {ex.Message}");
+                MessageBox.Show($"Ошибка при загрузке настроек: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            return instruments;
+            return new AppSettings();
         }
+
+
 
     }
 }

@@ -26,7 +26,7 @@ public class TickerPriceStorage
         using (FileStream stream = new FileStream(filePath, FileMode.Create))
         {
             BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(stream, tickerGroups);
+            formatter?.Serialize(stream, tickerGroups);
         }
     }
 

@@ -20,5 +20,4 @@ namespace TinkoffPriceMonitor.Models
         public double PercentageThresholdGroup3 { get; set; }
         public int IntervalGroup3 { get; set; }
     }
-
 }
