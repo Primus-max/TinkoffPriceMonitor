@@ -32,21 +32,24 @@ public class TickerPriceStorage
         }
     }
 
-    public List<TickerPrice> LoadTickerPrice()
+    public List<(string GroupName, TickerPrice Ticker)> LoadTickerPrice()
     {
         if (File.Exists(filePath))
         {
             using (FileStream stream = new FileStream(filePath, FileMode.Open))
             {
                 BinaryFormatter formatter = new BinaryFormatter();
-                return ((List<TickerGroup>)formatter.Deserialize(stream))
-                    .SelectMany(g => g.Tickers)
+                var tickerGroups = (List<TickerGroup>)formatter.Deserialize(stream);
+
+                return tickerGroups
+                    .SelectMany(g => g.Tickers.Select(t => (g.GroupName, t)))
                     .ToList();
             }
         }
         else
         {
-            return new List<TickerPrice>();
+            return new List<(string GroupName, TickerPrice Ticker)>();
         }
     }
+
 }

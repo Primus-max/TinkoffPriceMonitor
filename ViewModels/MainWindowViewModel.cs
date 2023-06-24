@@ -156,18 +156,19 @@ namespace TinkoffPriceMonitor.ViewModels
         {
             TickerPriceStorage tickerPriceStorage = new TickerPriceStorage();
 
-            List<TickerPriceStorage.TickerPrice> savedData = tickerPriceStorage.LoadTickerPrice();
-            foreach (var tickerPrice in savedData)
+            List<(string GroupName, TickerPriceStorage.TickerPrice Ticker)> savedData = tickerPriceStorage.LoadTickerPrice();
+            foreach (var (groupName, ticker) in savedData)
             {
                 TrackedTickerInfo info = new TrackedTickerInfo
                 {
-                    TickerName = tickerPrice.Ticker,
+                    GroupName = groupName,
+                    TickerName = ticker.Ticker,
+                    Price = ticker.Price,
                     PriceChangePercentage = 0, // Установите нужное значение
                     EventTime = DateTime.Now // Установите нужное значение
                 };
                 PriceChangeMessages.Add(info);
             }
         }
-
     }
 }
