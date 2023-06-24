@@ -42,8 +42,7 @@ namespace TinkoffPriceMonitor.ViewModels
         public MainWindowViewModel()
         {
             TickerGroups = new ObservableCollection<TickerGroup>();
-
-
+            LoadTickerGroups();
         }
 
         public void AddTickerGroup()
@@ -64,6 +63,43 @@ namespace TinkoffPriceMonitor.ViewModels
 
             TickerGroups.Add(newGroup);
         }
+
+        public void SaveDataToJson()
+        {
+            // Сериализация TickerGroups в JSON
+            string jsonData = JsonConvert.SerializeObject(TickerGroups);
+
+            // Получение пути к файлу в корне программы
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.json");
+
+            try
+            {
+                // Запись JSON данных в файл
+                File.WriteAllText(filePath, jsonData);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось записать данные в файл data.json. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            MessageBox.Show("Данные сохранены в JSON файл.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        public void LoadTickerGroups()
+        {
+            string json = File.ReadAllText("data.json");
+
+            try
+            {
+                List<TickerGroup> groups = JsonConvert.DeserializeObject<List<TickerGroup>>(json);
+                TickerGroups = new ObservableCollection<TickerGroup>(groups);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось загрузить данные из файла data.json. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
 
     }

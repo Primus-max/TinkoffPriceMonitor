@@ -49,11 +49,21 @@
 
             <!-- Вкладка с настройками -->
             <TabItem Header="Настройки">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
-                        <!-- Кнопка "Добавить группу" -->
-                        <Button Content="Добавить группу" Click="AddGroup_Click" Margin="10"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Фиксированная высота для кнопки "Добавить группу" -->
+                        <RowDefinition Height="*"/>
+                        <!-- Растягиваемая область для ItemsControl -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Фиксированная высота для кнопки "Сохранить" -->
+                    </Grid.RowDefinitions>
 
+                    <!-- Кнопка "Добавить группу" -->
+                    <Button Content="Добавить группу" Click="AddGroup_Click" Margin="10" Grid.Row="0"/>
+
+                    <!-- ScrollViewer для обеспечения прокрутки -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <!-- Контейнер для групп тикеров -->
                         <ItemsControl x:Name="GroupContainer" Margin="10" ItemsSource="{Binding TickerGroups}">
                             <ItemsControl.ItemTemplate>
@@ -66,14 +76,21 @@
                                         <TextBox Text="{Binding PercentageThreshold, Mode=TwoWay}"/>
                                         <TextBlock Text="Временной интервал:"/>
                                         <TextBox Text="{Binding Interval, Mode=TwoWay}"/>
+                                        <StackPanel HorizontalAlignment="Right">
+                                            <Button Content="Удалить" Click="DeleteGroup_Click" Margin="0 10 0 0" Width="170"  />
+                                        </StackPanel>
                                         <Border Height="4" Background="#FF313E45" Margin="0,20,0,0"/>
+
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                    </StackPanel>
-                </ScrollViewer>
+                    </ScrollViewer>
+
+                    <!-- Кнопка "Сохранить" -->
+                    <Button Content="Сохранить" Click="SaveButton_Click" Margin="10" Grid.Row="2"/>
+                </Grid>
             </TabItem>
 
         </TabControl>
