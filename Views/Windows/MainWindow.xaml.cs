@@ -22,7 +22,7 @@ namespace TinkoffPriceMonitor.Views.Windows
         {
             InitializeComponent();
             _viewModel = new MainWindowViewModel();
-            DataContext = _viewModel;
+            //DataContext = _viewModel;
         }
 
         private void AddGroup_Click(object sender, RoutedEventArgs e)
@@ -65,7 +65,7 @@ namespace TinkoffPriceMonitor.Views.Windows
             catch (Exception ex)
             {
                 MessageBox.Show($"Не удалось сохранить данные в файл data.json, " +
-                    $"по причине {ex.Message}");
+                $"по причине {ex.Message}");
             }
         }
 

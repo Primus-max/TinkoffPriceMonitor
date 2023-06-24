@@ -23,6 +23,7 @@ namespace TinkoffPriceMonitor.ViewModels
         private ObservableCollection<PriceChangeMessage> _priceChangeMessages = null;
         private TickerPriceStorage _tickerPriceStorage;
         private ObservableCollection<TickerGroup> _tickerGroups;
+        private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
         #endregion
 
         #region Публичные свойства
