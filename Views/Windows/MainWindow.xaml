@@ -66,10 +66,12 @@
                                         <TextBox Text="{Binding PercentageThreshold, Mode=TwoWay}"/>
                                         <TextBlock Text="Временной интервал:"/>
                                         <TextBox Text="{Binding Interval, Mode=TwoWay}"/>
+                                        <Border Height="4" Background="#FF313E45" Margin="0,20,0,0"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
