@@ -32,9 +32,9 @@ namespace TinkoffPriceMonitor.ApiServices
             var methodConfig = new MethodConfig
             {
                 Names =
-        {
-            MethodName.Default,
-        },
+                {
+                    MethodName.Default,
+                },
                 RetryPolicy = new RetryPolicy
                 {
                     MaxAttempts = 5,

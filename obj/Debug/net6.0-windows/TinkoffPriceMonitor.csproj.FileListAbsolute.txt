@@ -39,3 +39,5 @@ Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\Views\Wind
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\Views\Windows\MainWindow.g.cs
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\TinkoffPriceMonitor.csproj.CopyComplete
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\Newtonsoft.Json.dll
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\App.config
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\TinkoffPriceMonitor.dll.config

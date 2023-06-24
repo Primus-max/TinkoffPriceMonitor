@@ -106,7 +106,6 @@ namespace TinkoffPriceMonitor.Views.Windows
                 File.WriteAllText("appSettings.json", json);
 
                 MessageBox.Show("Настройки сохранены", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-
             }
             catch (Exception ex)
             {

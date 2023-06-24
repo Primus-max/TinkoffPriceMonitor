@@ -10,7 +10,7 @@ namespace TinkoffPriceMonitor.ApiServices
 {
     public class Getters
     {
-        public static async Task<IEnumerable<Instrument>> GetPrices(IEnumerable<Instrument> instruments, InvestApiClient client)
+        public static async Task<IEnumerable<Instrument>> GetUpdatedPrices(IEnumerable<Instrument> instruments, InvestApiClient client)
         {
             var instrumentList = instruments.ToList();
             var figiList = instrumentList.Select(x => x.Figi);
@@ -29,7 +29,7 @@ namespace TinkoffPriceMonitor.ApiServices
                     var updatedInstrument = response.LastPrices.FirstOrDefault(x => x.Figi == instrument.Figi);
                     if (updatedInstrument != null && updatedInstrument.Price != null)
                     {
-                        //instrument.Price = updatedInstrument.Price;
+                        instrument.MinPriceIncrement = updatedInstrument.Price;
                     }
                 }
                 catch (Exception e)
