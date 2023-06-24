@@ -10,35 +10,23 @@ namespace TinkoffPriceMonitor.ApiServices
 {
     public class Getters
     {
-        public static async Task<IEnumerable<Instrument>> GetUpdatedPrices(IEnumerable<Instrument> instruments, InvestApiClient client)
+        public static async Task<decimal> GetUpdatedPrice(Instrument instrument, InvestApiClient client)
         {
-            var instrumentList = instruments.ToList();
-            var figiList = instrumentList.Select(x => x.Figi);
-
             var request = new GetLastPricesRequest()
             {
-                Figi = { figiList },
+                Figi = { instrument.Figi },
             };
 
-            var response = client.MarketData.GetLastPrices(request);
+            var response = await client.MarketData.GetLastPricesAsync(request);
 
-            foreach (var instrument in instrumentList)
+            var updatedInstrument = response.LastPrices.FirstOrDefault();
+            if (updatedInstrument != null && updatedInstrument.Price != null)
             {
-                try
-                {
-                    var updatedInstrument = response.LastPrices.FirstOrDefault(x => x.Figi == instrument.Figi);
-                    if (updatedInstrument != null && updatedInstrument.Price != null)
-                    {
-                        instrument.MinPriceIncrement = updatedInstrument.Price;
-                    }
-                }
-                catch (Exception e)
-                {
-                    //_logger.LogError(e, "Error occured while updating instruments prices");
-                }
+                return updatedInstrument.Price;
             }
 
-            return instrumentList;
+            return 0; // Возвращаем значение по умолчанию, если не удалось получить цену
         }
+
     }
 }

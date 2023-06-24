@@ -38,7 +38,9 @@ namespace TinkoffPriceMonitor.ViewModels
 
             InitializeClientAsync();
 
-            //GetInfoRequest getInfo = new GetInfoRequest();            
+
+            AppSettings instruments = LoadAppSettingsFromFile();
+
         }
 
         // Получаю клиента для работы
@@ -158,8 +160,6 @@ namespace TinkoffPriceMonitor.ViewModels
 
             return new AppSettings();
         }
-
-
 
     }
 }
