@@ -52,28 +52,28 @@ namespace TinkoffPriceMonitor.ViewModels
 
             AppSettings tickersFromAppSettings = LoadAppSettingsFromFile();
             SharesResponse allInstruments = await _client?.Instruments?.SharesAsync();
-            string[] tickersGroup1 = ParseTickerGroup(tickersFromAppSettings.TickerGroup1);
+            //string[] tickersGroup1 = ParseTickerGroup(tickersFromAppSettings.TickerGroup1);
 
-            foreach (var ticker in tickersGroup1)
-            {
+            //foreach (var ticker in tickersGroup1)
+            //{
 
-                foreach (var instrument in allInstruments.Instruments)
-                {
-                    if (instrument is null) continue;
-                    if (instrument.Ticker == ticker)
-                    {
-                        // instrument содержит полную информацию об инструменте, включая figi и другие свойства
-                        var price = await Getters.GetUpdatedPrice(instrument, _client);
-                        // Вы можете выполнить нужные действия с instrument и price
-                    }
-                    else
-                    {
-                        // Обработка случая, когда инструмент не найден по тикеру
-                    }
-                }
+            //    foreach (var instrument in allInstruments.Instruments)
+            //    {
+            //        if (instrument is null) continue;
+            //        if (instrument.Ticker == ticker)
+            //        {
+            //            // instrument содержит полную информацию об инструменте, включая figi и другие свойства
+            //            var price = await Getters.GetUpdatedPrice(instrument, _client);
+            //            // Вы можете выполнить нужные действия с instrument и price
+            //        }
+            //        else
+            //        {
+            //            // Обработка случая, когда инструмент не найден по тикеру
+            //        }
+            //    }
 
 
-            }
+            //}
 
 
 
