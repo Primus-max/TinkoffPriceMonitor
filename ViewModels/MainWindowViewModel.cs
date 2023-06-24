@@ -20,14 +20,14 @@ namespace TinkoffPriceMonitor.ViewModels
     {
         #region Приватные свойства
         private InvestApiClient? _client = null;
-        private ObservableCollection<PriceChangeMessage> _priceChangeMessages = null;
+        private ObservableCollection<TrackedTickerInfo> _priceChangeMessages = null;
         private TickerPriceStorage _tickerPriceStorage;
         private ObservableCollection<TickerGroup> _tickerGroups;
-        private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
+        //private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
         #endregion
 
         #region Публичные свойства
-        public ObservableCollection<PriceChangeMessage> PriceChangeMessages
+        public ObservableCollection<TrackedTickerInfo> PriceChangeMessages
         {
             get => _priceChangeMessages;
             set => Set(ref _priceChangeMessages, value);
@@ -39,11 +39,11 @@ namespace TinkoffPriceMonitor.ViewModels
             set => Set(ref _tickerGroups, value);
         }
 
-        private ObservableCollection<TrackedTickerInfo> PriceChangeItems
-        {
-            get => _priceChangeItems;
-            set => Set(ref _priceChangeItems, value);
-        }
+        //private ObservableCollection<TrackedTickerInfo> PriceChangeItems
+        //{
+        //    get => _priceChangeItems;
+        //    set => Set(ref _priceChangeItems, value);
+        //}
         #endregion
 
 
@@ -52,9 +52,13 @@ namespace TinkoffPriceMonitor.ViewModels
             // Инициализация источника данных для отображения (настройки)
             TickerGroups = new ObservableCollection<TickerGroup>();
 
-            #region Методы
+            // Инициализация источника данных для отображения (информация по тикерам)
+            PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>();
+
+            #region Вызовы методов
             LoadTickerGroups();
             Initialize();
+            LoadSavedData();
             #endregion
         }
 
@@ -147,5 +151,23 @@ namespace TinkoffPriceMonitor.ViewModels
             }
 
         }
+
+        private void LoadSavedData()
+        {
+            TickerPriceStorage tickerPriceStorage = new TickerPriceStorage();
+
+            List<TickerPriceStorage.TickerPrice> savedData = tickerPriceStorage.LoadTickerPrice();
+            foreach (var tickerPrice in savedData)
+            {
+                TrackedTickerInfo info = new TrackedTickerInfo
+                {
+                    TickerName = tickerPrice.Ticker,
+                    PriceChangePercentage = 0, // Установите нужное значение
+                    EventTime = DateTime.Now // Установите нужное значение
+                };
+                PriceChangeMessages.Add(info);
+            }
+        }
+
     }
 }

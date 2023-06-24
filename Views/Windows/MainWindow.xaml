@@ -35,13 +35,15 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0 0 0 5">
-                                        <TextBlock Text="{Binding Path=InstrumentName}" FontWeight="Bold"/>
-                                        <TextBlock Text="{Binding Path=MessageText}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Path=TickerName}" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Path=PriceChangePercentage, StringFormat='0.00%'}"/>
+                                        <TextBlock Text="{Binding Path=EventTime}"/>
                                         <Separator/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

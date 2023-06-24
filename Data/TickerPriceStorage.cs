@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 
 [Serializable]
@@ -31,19 +32,21 @@ public class TickerPriceStorage
         }
     }
 
-    public List<TickerGroup> LoadTickerPrice()
+    public List<TickerPrice> LoadTickerPrice()
     {
         if (File.Exists(filePath))
         {
             using (FileStream stream = new FileStream(filePath, FileMode.Open))
             {
                 BinaryFormatter formatter = new BinaryFormatter();
-                return (List<TickerGroup>)formatter.Deserialize(stream);
+                return ((List<TickerGroup>)formatter.Deserialize(stream))
+                    .SelectMany(g => g.Tickers)
+                    .ToList();
             }
         }
         else
         {
-            return new List<TickerGroup>();
+            return new List<TickerPrice>();
         }
     }
 }
