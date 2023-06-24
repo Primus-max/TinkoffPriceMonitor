@@ -31,6 +31,8 @@ namespace TinkoffPriceMonitor.ViewModels
         }
         #endregion
 
+        private TickerPriceStorage _tickerPriceStorage;
+
         private ObservableCollection<TickerGroup> _tickerGroups;
 
         public ObservableCollection<TickerGroup> TickerGroups
@@ -41,17 +43,63 @@ namespace TinkoffPriceMonitor.ViewModels
 
         public MainWindowViewModel()
         {
+
             TickerGroups = new ObservableCollection<TickerGroup>();
             LoadTickerGroups();
+
+            Initialize();
         }
 
+        private async Task Initialize()
+        {
+            _client = await Creaters.CreateClientAsync();
+            await LoadTickerPricesAsync();
+        }
+
+        private async Task LoadTickerPricesAsync()
+        {
+            var tickerGroups = new List<TickerPriceStorage.TickerGroup>();
+
+            foreach (var group in TickerGroups)
+            {
+                var tickers = group.Tickers.Split('|');
+
+                var tickerGroup = new TickerPriceStorage.TickerGroup
+                {
+                    GroupName = group.GroupName,
+                    Tickers = new List<TickerPriceStorage.TickerPrice>()
+                };
+
+                foreach (var ticker in tickers)
+                {
+                    SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
+                    var instrument = sharesResponse?.Instruments.FirstOrDefault(x => x.Ticker == ticker);
+
+                    if (instrument != null)
+                    {
+                        decimal price = await Getters.GetUpdatedPrice(instrument, _client);
+                        tickerGroup.Tickers.Add(new TickerPriceStorage.TickerPrice { Ticker = ticker, Price = price });
+                    }
+                }
+
+                tickerGroups.Add(tickerGroup);
+            }
+
+            var tickerPriceStorage = new TickerPriceStorage();
+            tickerPriceStorage.SaveTickerPrice(tickerGroups);
+        }
+
+        // Метод добавления тикеров во View (отображение)
         public void AddTickerGroup()
         {
+            _tickerPriceStorage = new TickerPriceStorage();
+
             TickerGroup newGroup = new TickerGroup();
 
             TickerGroups.Add(newGroup);
         }
 
+        // Метод сохранения данных полученных из текстовых полей View (главного окна) от пользователя
         public void SaveDataToJson()
         {
             // Сериализация TickerGroups в JSON
@@ -73,6 +121,7 @@ namespace TinkoffPriceMonitor.ViewModels
             MessageBox.Show("Данные сохранены в JSON файл.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        // Метод загрузки данных в источник данных для отображения во View (главного окна)
         public void LoadTickerGroups()
         {
             string json = File.ReadAllText("data.json");
@@ -86,9 +135,7 @@ namespace TinkoffPriceMonitor.ViewModels
             {
                 MessageBox.Show($"Не удалось загрузить данные из файла data.json. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
         }
-
-
-
     }
 }
