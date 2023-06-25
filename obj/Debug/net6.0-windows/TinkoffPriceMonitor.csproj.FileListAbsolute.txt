@@ -44,3 +44,9 @@ Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\TinkoffPri
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\TinkoffPriceMonitor.genruntimeconfig.cache
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\ref\TinkoffPriceMonitor.dll
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\App.baml
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\ControlzEx.dll
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\MahApps.Metro.dll
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\MaterialDesignColors.dll
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\MaterialDesignThemes.Wpf.dll
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\MaterialDesignThemes.MahApps.dll
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\Microsoft.Xaml.Behaviors.dll

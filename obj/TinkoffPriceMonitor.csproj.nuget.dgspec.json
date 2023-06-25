@@ -50,6 +50,18 @@
               "target": "Package",
               "version": "[12.0.1, )"
             },
+            "MaterialDesignColors": {
+              "target": "Package",
+              "version": "[2.1.4, )"
+            },
+            "MaterialDesignThemes": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "MaterialDesignThemes.MahApps": {
+              "target": "Package",
+              "version": "[0.3.0, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
