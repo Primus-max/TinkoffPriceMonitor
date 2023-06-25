@@ -49,11 +49,13 @@ namespace TinkoffPriceMonitor.ViewModels
 
         public MainWindowViewModel()
         {
+            #region Инициализация источников данных
             // Инициализация источника данных для отображения (настройки)
             TickerGroups = new ObservableCollection<TickerGroup>();
 
             // Инициализация источника данных для отображения (информация по тикерам)
             PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>();
+            #endregion
 
             #region Вызовы методов            
             LoadTickerGroups();
@@ -62,6 +64,8 @@ namespace TinkoffPriceMonitor.ViewModels
             // AddTickerGroup();
             #endregion
         }
+
+        #region Методы
 
         // Метод инициализации клиента и некоторых методов при старте программы
         private async Task Initialize()
@@ -153,6 +157,7 @@ namespace TinkoffPriceMonitor.ViewModels
 
         }
 
+        // Метод загрузки и сохранения цен для тикеров из биржи (сохраняем в бинарнике)
         private void LoadSavedData()
         {
             TickerPriceStorage tickerPriceStorage = new();
@@ -171,5 +176,6 @@ namespace TinkoffPriceMonitor.ViewModels
                 PriceChangeMessages.Add(info);
             }
         }
+        #endregion
     }
 }
