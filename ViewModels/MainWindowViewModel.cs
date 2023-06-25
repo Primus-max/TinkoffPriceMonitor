@@ -70,7 +70,7 @@ namespace TinkoffPriceMonitor.ViewModels
             Initialize();
             LoadSavedData();
             // AddTickerGroup();
-            //RunPriceMonitoring();
+            RunPriceMonitoring();
 
 
 
@@ -78,126 +78,126 @@ namespace TinkoffPriceMonitor.ViewModels
         }
 
 
-        //// Метод для запуска мониторинга цен для всех групп тикеров
-        //private void RunPriceMonitoring()
-        //{
-        //    foreach (var group in TickerGroups)
-        //    {
-        //        Task.Run(() => MonitorTickerGroup(group));
-        //    }
-        //}
+        // Метод для запуска мониторинга цен для всех групп тикеров
+        private async void RunPriceMonitoring()
+        {
+            foreach (var group in TickerGroups)
+            {
+                await MonitorTickerGroup(group);
+            }
+        }
 
-        //// Метод для мониторинга цен для одной группы тикеров
-        //private async Task MonitorTickerGroup(TickerGroup group)
-        //{
-        //    string[] tickers = group.Tickers.Split('|');
-        //    TickerPriceStorage tickerPriceStorage = new TickerPriceStorage();
+        // Метод для мониторинга цен для одной группы тикеров
+        private async Task MonitorTickerGroup(TickerGroup group)
+        {
+            string[] tickers = group.Tickers.Split('|');
+            TickerPriceStorage tickerPriceStorage = new TickerPriceStorage();
 
-        //    while (true)
-        //    {
-        //        foreach (var ticker in tickers)
-        //        {
-        //            // Получаем старую цену
-        //            decimal oldPrice = tickerPriceStorage.LoadTickerPrice()
-        //                .SingleOrDefault(t => t.GroupName == group.GroupName && t.Ticker.Ticker == ticker)
-        //                .Ticker?.Price ?? 0;
+            while (true)
+            {
+                foreach (var ticker in tickers)
+                {
+                    // Получаем старую цену
+                    decimal oldPrice = tickerPriceStorage.LoadTickerPrice()
+                        .SingleOrDefault(t => t.GroupName == group.GroupName && t.Ticker.Ticker == ticker)
+                        .Ticker?.Price ?? 0;
 
-        //            // Получаем инструмент по тикеру
-        //            Share instrument = await GetShareByTicker(ticker);
+                    // Получаем инструмент по тикеру
+                    Share instrument = await GetShareByTicker(ticker);
 
-        //            if (instrument == null) continue;
+                    if (instrument == null) continue;
 
-        //            // Получаем свечи для заданного интервала времени
-        //            int intervalMinutes = group.Interval;
+                    // Получаем свечи для заданного интервала времени
+                    int intervalMinutes = group.Interval;
 
-        //            // Преобразование интервала времени в объект TimeSpan
-        //            TimeSpan timeFrame = TimeSpan.FromMinutes(intervalMinutes);
+                    // Преобразование интервала времени в объект TimeSpan
+                    TimeSpan timeFrame = TimeSpan.FromMinutes(intervalMinutes);
 
-        //            // Получение свечи за заданный интервал времени
-        //            Candle customCandle = await GetCustomCandle(instrument, timeFrame);
+                    // Получение свечи за заданный интервал времени
+                    Candle customCandle = await GetCustomCandle(instrument, timeFrame);
 
-        //            // Вычисляем процентное изменение цены
-        //            decimal priceChangePercentage = CalculatePriceChangePercentage(customCandle);
+                    // Вычисляем процентное изменение цены
+                    decimal priceChangePercentage = CalculatePriceChangePercentage(customCandle);
 
-        //            // Проверяем условия и выводим сообщение
-        //            if (IsPositivePriceChange(customCandle) && priceChangePercentage > group.PercentageThreshold)
-        //            {
-        //                // Положительное изменение цены
-        //                string message = $"Положительное изменение цены для тикера {ticker}: {priceChangePercentage}%";
-        //                // Отправка сообщения или выполнение дополнительных действий
-        //            }
-        //            else if (IsNegativePriceChange(customCandle) && priceChangePercentage > group.PercentageThreshold)
-        //            {
-        //                // Отрицательное изменение цены
-        //                string message = $"Отрицательное изменение цены для тикера {ticker}: {priceChangePercentage}%";
-        //                // Отправка сообщения или выполнение дополнительных действий
-        //            }
+                    // Проверяем условия и выводим сообщение
+                    if (IsPositivePriceChange(customCandle) && priceChangePercentage > group.PercentageThreshold)
+                    {
+                        // Положительное изменение цены
+                        string message = $"Положительное изменение цены для тикера {ticker}: {priceChangePercentage}%";
+                        // Отправка сообщения или выполнение дополнительных действий
+                    }
+                    else if (IsNegativePriceChange(customCandle) && priceChangePercentage > group.PercentageThreshold)
+                    {
+                        // Отрицательное изменение цены
+                        string message = $"Отрицательное изменение цены для тикера {ticker}: {priceChangePercentage}%";
+                        // Отправка сообщения или выполнение дополнительных действий
+                    }
 
-        //            // Обновляем данные в хранилище цен
-        //            // tickerPriceStorage.UpdateTickerPrice(group.GroupName, ticker, customCandle.Close);
-        //        }
+                    // Обновляем данные в хранилище цен
+                    //tickerPriceStorage.UpdateTickerPrice(group.GroupName, ticker, customCandle.Close);
+                }
 
-        //        // Задержка перед следующей проверкой цены
-        //        await Task.Delay(group.Interval);
-        //    }
-        //}
+                // Задержка перед следующей проверкой цены
+                await Task.Delay(group.Interval);
+            }
+        }
 
-        //// Метод для получения свечей за заданный интервал времени
-        //private async Task<Candle> GetCustomCandle(Share instrument, TimeSpan timeFrame)
-        //{
-        //    DateTimeOffset now = DateTimeOffset.Now;
-        //    DateTimeOffset intervalAgo = now.Subtract(timeFrame);
-        //    Timestamp nowTimestamp = Timestamp.FromDateTimeOffset(now);
-        //    Timestamp intervalAgoTimestamp = Timestamp.FromDateTimeOffset(intervalAgo);
+        // Метод для получения свечей за заданный интервал времени
+        private async Task<Candle> GetCustomCandle(Share instrument, TimeSpan timeFrame)
+        {
+            DateTimeOffset now = DateTimeOffset.Now;
+            DateTimeOffset intervalAgo = now.Subtract(timeFrame);
+            Timestamp nowTimestamp = Timestamp.FromDateTimeOffset(now);
+            Timestamp intervalAgoTimestamp = Timestamp.FromDateTimeOffset(intervalAgo);
 
-        //    var request = new GetCandlesRequest()
-        //    {
-        //        InstrumentId = instrument.Uid,
-        //        From = intervalAgoTimestamp,
-        //        To = nowTimestamp,
-        //        Interval = CandleInterval._1Min
-        //    };
+            var request = new GetCandlesRequest()
+            {
+                InstrumentId = instrument.Uid,
+                From = intervalAgoTimestamp,
+                To = nowTimestamp,
+                Interval = CandleInterval._1Min
+            };
 
-        //    var response = await _client.MarketData.GetCandlesAsync(request);
+            var response = await _client.MarketData.GetCandlesAsync(request);
 
-        //    // Создание свечи для заданного интервала времени
-        //    Candle customCandle = new Candle
-        //    {
-        //        Open = decimal.MaxValue, // Начальное значение открытия
-        //        Close = decimal.MinValue, // Начальное значение закрытия
-        //        High = decimal.MinValue, // Начальное значение максимальной цены
-        //        Low = decimal.MaxValue // Начальное значение минимальной цены
-        //    };
+            // Создание свечи для заданного интервала времени
+            Candle customCandle = new Candle
+            {
+                Open = decimal.MaxValue, // Начальное значение открытия
+                Close = decimal.MinValue, // Начальное значение закрытия
+                High = decimal.MinValue, // Начальное значение максимальной цены
+                Low = decimal.MaxValue // Начальное значение минимальной цены
+            };
 
-        //    foreach (var candle in response.Candles)
-        //    {
-        //        // Обновление значений свечи на основе данных из полученных свечей
-        //        customCandle.Open = Math.Min(customCandle.Open, candle.Open);
-        //        customCandle.Close = Math.Max(customCandle.Close, candle.Close);
-        //        customCandle.High = Math.Max(customCandle.High, candle.High);
-        //        customCandle.Low = Math.Min(customCandle.Low, candle.Low);
-        //    }
+            foreach (var candle in response.Candles)
+            {
+                // Обновление значений свечи на основе данных из полученных свечей
+                customCandle.Open = Math.Min(customCandle.Open, candle.Open);
+                customCandle.Close = Math.Max(customCandle.Close, candle.Close);
+                customCandle.High = Math.Max(customCandle.High, candle.High);
+                customCandle.Low = Math.Min(customCandle.Low, candle.Low);
+            }
 
-        //    return customCandle;
-        //}
+            return customCandle;
+        }
 
-        //// Метод для вычисления процентного изменения цены
-        //private decimal CalculatePriceChangePercentage(Candle candle)
-        //{
-        //    return ((candle.High - candle.Low) * 100) / (candle.Open < candle.Close ? candle.Open : candle.Close);
-        //}
+        // Метод для вычисления процентного изменения цены
+        private decimal CalculatePriceChangePercentage(Candle candle)
+        {
+            return ((candle.High - candle.Low) * 100) / (candle.Open < candle.Close ? candle.Open : candle.Close);
+        }
 
-        //// Метод для проверки положительного изменения цены
-        //private bool IsPositivePriceChange(Candle candle)
-        //{
-        //    return candle.Open < candle.Close;
-        //}
+        // Метод для проверки положительного изменения цены
+        private bool IsPositivePriceChange(Candle candle)
+        {
+            return candle.Open < candle.Close;
+        }
 
-        //// Метод для проверки отрицательного изменения цены
-        //private bool IsNegativePriceChange(Candle candle)
-        //{
-        //    return candle.Open > candle.Close;
-        //}
+        // Метод для проверки отрицательного изменения цены
+        private static bool IsNegativePriceChange(Candle candle)
+        {
+            return candle.Open > candle.Close;
+        }
 
 
 
@@ -290,7 +290,6 @@ namespace TinkoffPriceMonitor.ViewModels
                 MessageBox.Show($"Не удалось записать данные в файл data.json. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
 
         // Метод загрузки данных в источник данных для отображения во View (главного окна)
         public void LoadTickerGroups()
