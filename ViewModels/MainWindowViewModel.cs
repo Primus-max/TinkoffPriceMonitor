@@ -78,49 +78,7 @@ namespace TinkoffPriceMonitor.ViewModels
         }
 
 
-        public async Task Testing()
-        {
-            // Создание экземпляра IMapper
-            var mapperConfig = new MapperConfiguration(cfg =>
-            {
-                // Конфигурируйте маппинги здесь
-                // Пример: cfg.CreateMap<SourceClass, DestinationClass>();
-            });
-
-            IMapper mapper = mapperConfig.CreateMapper();
-
-            foreach (var ticker in TickerGroups)
-            {
-                string[] tickersSplit = ticker.Tickers.Split('|');
-
-                foreach (var tt in tickersSplit)
-                {
-                    Share instrument = await GetShareByTicker(tt);
-                    // Создание Timestamp для текущего времени
-                    Timestamp nowTimestamp = Timestamp.FromDateTimeOffset(DateTimeOffset.Now);
-
-                    // Создание Timestamp для времени, отстоящего от текущего на 5 минут
-                    DateTimeOffset fiveMinutesAgo = DateTimeOffset.Now.AddMinutes(-1);
-                    Timestamp fiveMinutesAgoTimestamp = Timestamp.FromDateTimeOffset(fiveMinutesAgo);
-                    CandleInterval interval = CandleInterval._1Min;
-
-                    var request = new GetCandlesRequest()
-                    {
-                        InstrumentId = instrument.Uid,
-                        From = fiveMinutesAgoTimestamp,
-                        To = nowTimestamp,
-                        Interval = interval
-                    };
-
-                    var response = await _client.MarketData.GetCandlesAsync(request);
-                    var result = response.Candles?.Select(x => mapper.Map<Candle>(x)).ToList();
-
-                    // Используйте полученные свечи в дальнейшем анализе
-                }
-            }
-        }
-
-
+        // Метод для запуска мониторинга цен для всех групп тикеров
         private void RunPriceMonitoring()
         {
             foreach (var group in TickerGroups)
@@ -129,10 +87,11 @@ namespace TinkoffPriceMonitor.ViewModels
             }
         }
 
+        // Метод для мониторинга цен для одной группы тикеров
         private async Task MonitorTickerGroup(TickerGroup group)
         {
             string[] tickers = group.Tickers.Split('|');
-            TickerPriceStorage tickerPriceStorage = new();
+            TickerPriceStorage tickerPriceStorage = new TickerPriceStorage();
 
             while (true)
             {
@@ -140,26 +99,42 @@ namespace TinkoffPriceMonitor.ViewModels
                 {
                     // Получаем старую цену
                     decimal oldPrice = tickerPriceStorage.LoadTickerPrice()
-                            .SingleOrDefault(t => t.GroupName == group.GroupName && t.Ticker.Ticker == ticker)
-                            .Ticker?.Price ?? 0;
-
+                        .SingleOrDefault(t => t.GroupName == group.GroupName && t.Ticker.Ticker == ticker)
+                        .Ticker?.Price ?? 0;
 
                     // Получаем инструмент по тикеру
                     Share instrument = await GetShareByTicker(ticker);
 
                     if (instrument == null) continue;
 
-                    // Получаем новую цену
-                    decimal newPrice = await Getters.GetUpdatedPrice(instrument, _client);
+                    // Получаем свечи для заданного интервала времени
+                    int intervalMinutes = group.Interval;
+
+                    // Преобразование интервала времени в объект TimeSpan
+                    TimeSpan timeFrame = TimeSpan.FromMinutes(intervalMinutes);
+
+                    // Получение свечи за заданный интервал времени
+                    Candle customCandle = await GetCustomCandle(instrument, timeFrame);
 
                     // Вычисляем процентное изменение цены
-                    decimal priceChangePercentage = (newPrice - oldPrice) / oldPrice * 100;
+                    decimal priceChangePercentage = CalculatePriceChangePercentage(customCandle);
 
-                    // Обновляем данные в модели
-                    //tickerPriceStorage.UpdateTickerPrice(group.GroupName, ticker, newPrice);
+                    // Проверяем условия и выводим сообщение
+                    if (IsPositivePriceChange(customCandle) && priceChangePercentage > group.PercentageThreshold)
+                    {
+                        // Положительное изменение цены
+                        string message = $"Положительное изменение цены для тикера {ticker}: {priceChangePercentage}%";
+                        // Отправка сообщения или выполнение дополнительных действий
+                    }
+                    else if (IsNegativePriceChange(customCandle) && priceChangePercentage > group.PercentageThreshold)
+                    {
+                        // Отрицательное изменение цены
+                        string message = $"Отрицательное изменение цены для тикера {ticker}: {priceChangePercentage}%";
+                        // Отправка сообщения или выполнение дополнительных действий
+                    }
 
-                    // При необходимости выполняем дополнительные действия, например, отправку уведомлений
-
+                    // Обновляем данные в хранилище цен
+                    // tickerPriceStorage.UpdateTickerPrice(group.GroupName, ticker, customCandle.Close);
                 }
 
                 // Задержка перед следующей проверкой цены
@@ -167,23 +142,81 @@ namespace TinkoffPriceMonitor.ViewModels
             }
         }
 
+        // Метод для получения свечей за заданный интервал времени
+        private async Task<Candle> GetCustomCandle(Share instrument, TimeSpan timeFrame)
+        {
+            DateTimeOffset now = DateTimeOffset.Now;
+            DateTimeOffset intervalAgo = now.Subtract(timeFrame);
+            Timestamp nowTimestamp = Timestamp.FromDateTimeOffset(now);
+            Timestamp intervalAgoTimestamp = Timestamp.FromDateTimeOffset(intervalAgo);
+
+            var request = new GetCandlesRequest()
+            {
+                InstrumentId = instrument.Uid,
+                From = intervalAgoTimestamp,
+                To = nowTimestamp,
+                Interval = CandleInterval._1Min
+            };
+
+            var response = await _client.MarketData.GetCandlesAsync(request);
+
+            // Создание свечи для заданного интервала времени
+            Candle customCandle = new Candle
+            {
+                Open = decimal.MaxValue, // Начальное значение открытия
+                Close = decimal.MinValue, // Начальное значение закрытия
+                High = decimal.MinValue, // Начальное значение максимальной цены
+                Low = decimal.MaxValue // Начальное значение минимальной цены
+            };
+
+            foreach (var candle in response.Candles)
+            {
+                // Обновление значений свечи на основе данных из полученных свечей
+                customCandle.Open = Math.Min(customCandle.Open, candle.Open);
+                customCandle.Close = Math.Max(customCandle.Close, candle.Close);
+                customCandle.High = Math.Max(customCandle.High, candle.High);
+                customCandle.Low = Math.Min(customCandle.Low, candle.Low);
+            }
+
+            return customCandle;
+        }
+
+        // Метод для вычисления процентного изменения цены
+        private decimal CalculatePriceChangePercentage(Candle candle)
+        {
+            return ((candle.High - candle.Low) * 100) / (candle.Open < candle.Close ? candle.Open : candle.Close);
+        }
+
+        // Метод для проверки положительного изменения цены
+        private bool IsPositivePriceChange(Candle candle)
+        {
+            return candle.Open < candle.Close;
+        }
+
+        // Метод для проверки отрицательного изменения цены
+        private bool IsNegativePriceChange(Candle candle)
+        {
+            return candle.Open > candle.Close;
+        }
 
 
+
+
+
+        #region Методы
+        // Получаю и возвращаю инструмент по имени тикера из API
         private async Task<Share> GetShareByTicker(string ticker)
         {
             SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
             return sharesResponse?.Instruments.FirstOrDefault(x => x.Ticker == ticker);
         }
 
-
-        #region Методы
-
         // Метод инициализации клиента и некоторых методов при старте программы
         private async Task Initialize()
         {
             _client = await Creaters.CreateClientAsync();
             await LoadTickerPricesAsync();
-            await Testing();
+
         }
 
         // Метод загрузки и сохранения цен в барном файле для отображения и дальнейшего сравнения

@@ -10,7 +10,7 @@ namespace TinkoffPriceMonitor.Models
     {
         public string? GroupName { get; set; }
         public string? Tickers { get; set; }
-        public double PercentageThreshold { get; set; }
+        public decimal PercentageThreshold { get; set; }
         public int Interval { get; set; }
     }
 }
