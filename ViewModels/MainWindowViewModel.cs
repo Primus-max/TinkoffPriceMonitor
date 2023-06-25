@@ -1,10 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using AutoMapper;
+using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Tinkoff.InvestApi;
@@ -53,7 +57,6 @@ namespace TinkoffPriceMonitor.ViewModels
 
 
 
-
             #region Инициализация источников данных
             // Инициализация источника данных для отображения (настройки)
             TickerGroups = new ObservableCollection<TickerGroup>();
@@ -68,7 +71,53 @@ namespace TinkoffPriceMonitor.ViewModels
             LoadSavedData();
             // AddTickerGroup();
             RunPriceMonitoring();
+
+
+
             #endregion
+        }
+
+
+        public async Task Testing()
+        {
+            // Создание экземпляра IMapper
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                // Конфигурируйте маппинги здесь
+                // Пример: cfg.CreateMap<SourceClass, DestinationClass>();
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+
+            foreach (var ticker in TickerGroups)
+            {
+                string[] tickersSplit = ticker.Tickers.Split('|');
+
+                foreach (var tt in tickersSplit)
+                {
+                    Share instrument = await GetShareByTicker(tt);
+                    // Создание Timestamp для текущего времени
+                    Timestamp nowTimestamp = Timestamp.FromDateTimeOffset(DateTimeOffset.Now);
+
+                    // Создание Timestamp для времени, отстоящего от текущего на 5 минут
+                    DateTimeOffset fiveMinutesAgo = DateTimeOffset.Now.AddMinutes(-1);
+                    Timestamp fiveMinutesAgoTimestamp = Timestamp.FromDateTimeOffset(fiveMinutesAgo);
+                    CandleInterval interval = CandleInterval._1Min;
+
+                    var request = new GetCandlesRequest()
+                    {
+                        InstrumentId = instrument.Uid,
+                        From = fiveMinutesAgoTimestamp,
+                        To = nowTimestamp,
+                        Interval = interval
+                    };
+
+                    var response = await _client.MarketData.GetCandlesAsync(request);
+                    var result = response.Candles?.Select(x => mapper.Map<Candle>(x)).ToList();
+
+                    // Используйте полученные свечи в дальнейшем анализе
+                }
+            }
         }
 
 
@@ -134,6 +183,7 @@ namespace TinkoffPriceMonitor.ViewModels
         {
             _client = await Creaters.CreateClientAsync();
             await LoadTickerPricesAsync();
+            await Testing();
         }
 
         // Метод загрузки и сохранения цен в барном файле для отображения и дальнейшего сравнения

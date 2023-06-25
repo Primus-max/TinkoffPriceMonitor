@@ -42,3 +42,4 @@ Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\App.config
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\TinkoffPriceMonitor.dll.config
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\GeneratedInternalTypeHelper.g.cs
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\TinkoffPriceMonitor_MarkupCompile.lref
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\bin\Debug\net6.0-windows\AutoMapper.dll
