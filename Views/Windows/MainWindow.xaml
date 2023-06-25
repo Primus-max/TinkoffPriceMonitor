@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TinkoffPriceMonitor.ViewModels"
-        Width="400"
+        Width="450"
         Height="600"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="SingleBorderWindow"
@@ -31,18 +31,29 @@
                         <TextBlock Text="Сообщения о изменении цены" FontSize="16" FontWeight="Bold" Margin="0 0 0 10"/>
 
                         <!-- Пример элементов управления для вывода сообщений -->
-                        <ItemsControl ItemsSource="{Binding PriceChangeMessages}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="0 0 0 5">
-                                        <TextBlock Text="{Binding Path=TickerName}" FontWeight="Bold"/>
-                                        <TextBlock Text="{Binding Path=PriceChangePercentage, StringFormat='0.00%'}"/>
-                                        <TextBlock Text="{Binding Path=EventTime}"/>
-                                        <Separator/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <ListView ItemsSource="{Binding PriceChangeMessages}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Группа" DisplayMemberBinding="{Binding GroupName}" />
+                                    <GridViewColumn Header="Тикер" DisplayMemberBinding="{Binding TickerName}" />
+                                    <GridViewColumn Header="Процент">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding PriceChangePercentage, StringFormat='0.00%'}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Обновление">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding EventTime, StringFormat='HH:mm:ss'}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
