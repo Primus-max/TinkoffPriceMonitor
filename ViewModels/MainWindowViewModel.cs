@@ -182,7 +182,7 @@ namespace TinkoffPriceMonitor.ViewModels
         }
 
         // Метод для вычисления процентного изменения цены
-        private decimal CalculatePriceChangePercentage(Candle candle)
+        private static decimal CalculatePriceChangePercentage(Candle candle)
         {
             decimal open = candle.Open != 0 ? candle.Open : 0.0001m; // Замените 0.0001m на подходящее ненулевое значение
             decimal close = candle.Close != 0 ? candle.Close : 0.0001m; // Замените 0.0001m на подходящее ненулевое значение
@@ -190,7 +190,7 @@ namespace TinkoffPriceMonitor.ViewModels
         }
 
         // Метод для проверки положительного изменения цены
-        private bool IsPositivePriceChange(Candle candle)
+        private static bool IsPositivePriceChange(Candle candle)
         {
             return candle.Open < candle.Close;
         }
@@ -209,8 +209,18 @@ namespace TinkoffPriceMonitor.ViewModels
         // Получаю и возвращаю инструмент по имени тикера из API
         private async Task<Share> GetShareByTicker(string ticker)
         {
-            SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
-            return sharesResponse?.Instruments.FirstOrDefault(x => x.Ticker == ticker);
+            Share share = new Share();
+            try
+            {
+                SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
+                share = sharesResponse?.Instruments?.FirstOrDefault(x => x.Ticker == ticker) ?? new Share();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось получить инструмент. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            return share;
         }
 
         // Метод инициализации клиента и некоторых методов при старте программы
@@ -233,7 +243,7 @@ namespace TinkoffPriceMonitor.ViewModels
 
                 var tickerGroup = new TickerPriceStorage.TickerGroup
                 {
-                    GroupName = group.GroupName,
+                    GroupName = group?.GroupName,
                     Tickers = new List<TickerPriceStorage.TickerPrice>()
                 };
 
