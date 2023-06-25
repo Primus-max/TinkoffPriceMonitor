@@ -275,7 +275,6 @@ namespace TinkoffPriceMonitor.ViewModels
             tickerPriceStorage.SaveTickerPrice(tickerGroups);
         }
 
-
         // Метод добавления группы тикеров во View (отображение)
         public void AddTickerGroup()
         {

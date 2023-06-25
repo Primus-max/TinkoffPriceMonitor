@@ -32,9 +32,9 @@ namespace TinkoffPriceMonitor.ApiServices
             var methodConfig = new MethodConfig
             {
                 Names =
-                {
-                    MethodName.Default,
-                },
+        {
+            MethodName.Default,
+        },
                 RetryPolicy = new RetryPolicy
                 {
                     MaxAttempts = 5,
@@ -48,7 +48,7 @@ namespace TinkoffPriceMonitor.ApiServices
                 },
             };
 
-            var channel = GrpcChannel.ForAddress("https://invest-public-api.tinkoff.ru:443", new GrpcChannelOptions()
+            var channelOptions = new GrpcChannelOptions
             {
                 Credentials = ChannelCredentials.Create(new SslCredentials(), callCredentials),
                 ServiceConfig = new ServiceConfig
@@ -58,12 +58,14 @@ namespace TinkoffPriceMonitor.ApiServices
                 methodConfig,
             },
                 },
-            });
+            };
 
+            var channel = GrpcChannel.ForAddress("https://invest-public-api.tinkoff.ru:443", channelOptions);
             var invoker = channel.CreateCallInvoker();
             var client = new InvestApiClient(invoker);
 
             return Task.FromResult(client);
         }
+
     }
 }
