@@ -49,6 +49,11 @@ namespace TinkoffPriceMonitor.ViewModels
 
         public MainWindowViewModel()
         {
+
+
+
+
+
             #region Инициализация источников данных
             // Инициализация источника данных для отображения (настройки)
             TickerGroups = new ObservableCollection<TickerGroup>();
@@ -62,8 +67,65 @@ namespace TinkoffPriceMonitor.ViewModels
             Initialize();
             LoadSavedData();
             // AddTickerGroup();
+            RunPriceMonitoring();
             #endregion
         }
+
+
+        private void RunPriceMonitoring()
+        {
+            foreach (var group in TickerGroups)
+            {
+                Task.Run(() => MonitorTickerGroup(group));
+            }
+        }
+
+        private async Task MonitorTickerGroup(TickerGroup group)
+        {
+            string[] tickers = group.Tickers.Split('|');
+            TickerPriceStorage tickerPriceStorage = new();
+
+            while (true)
+            {
+                foreach (var ticker in tickers)
+                {
+                    // Получаем старую цену
+                    decimal oldPrice = tickerPriceStorage.LoadTickerPrice()
+                            .SingleOrDefault(t => t.GroupName == group.GroupName && t.Ticker.Ticker == ticker)
+                            .Ticker?.Price ?? 0;
+
+
+                    // Получаем инструмент по тикеру
+                    Share instrument = await GetShareByTicker(ticker);
+
+                    if (instrument == null) continue;
+
+                    // Получаем новую цену
+                    decimal newPrice = await Getters.GetUpdatedPrice(instrument, _client);
+
+                    // Вычисляем процентное изменение цены
+                    decimal priceChangePercentage = (newPrice - oldPrice) / oldPrice * 100;
+
+                    // Обновляем данные в модели
+                    //tickerPriceStorage.UpdateTickerPrice(group.GroupName, ticker, newPrice);
+
+                    // При необходимости выполняем дополнительные действия, например, отправку уведомлений
+
+                }
+
+                // Задержка перед следующей проверкой цены
+                await Task.Delay(group.Interval);
+            }
+        }
+
+
+
+        private async Task<Share> GetShareByTicker(string ticker)
+        {
+            SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
+            return sharesResponse?.Instruments.FirstOrDefault(x => x.Ticker == ticker);
+        }
+
 
         #region Методы
 
