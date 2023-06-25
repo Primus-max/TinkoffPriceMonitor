@@ -43,3 +43,4 @@ Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\refint\Tin
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\TinkoffPriceMonitor.pdb
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\TinkoffPriceMonitor.genruntimeconfig.cache
 Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\ref\TinkoffPriceMonitor.dll
+Z:\Programming\ProjectC#\TinkoffPriceMonitor\obj\Debug\net6.0-windows\App.baml

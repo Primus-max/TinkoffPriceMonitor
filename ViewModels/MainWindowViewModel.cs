@@ -163,10 +163,10 @@ namespace TinkoffPriceMonitor.ViewModels
             // Создание свечи для заданного интервала времени
             Candle customCandle = new Candle
             {
-                Open = decimal.MaxValue, // Начальное значение открытия
-                Close = decimal.MinValue, // Начальное значение закрытия
-                High = decimal.MinValue, // Начальное значение максимальной цены
-                Low = decimal.MaxValue // Начальное значение минимальной цены
+                Open = 0m, // Начальное значение открытия (может быть любым подходящим значением типа decimal)
+                Close = 0m, // Начальное значение закрытия (может быть любым подходящим значением типа decimal)
+                High = 0m, // Начальное значение максимальной цены (может быть любым подходящим значением типа decimal)
+                Low = 0m // Начальное значение минимальной цены (может быть любым подходящим значением типа decimal)
             };
 
             foreach (var candle in response.Candles)
@@ -184,7 +184,9 @@ namespace TinkoffPriceMonitor.ViewModels
         // Метод для вычисления процентного изменения цены
         private decimal CalculatePriceChangePercentage(Candle candle)
         {
-            return ((candle.High - candle.Low) * 100) / (candle.Open < candle.Close ? candle.Open : candle.Close);
+            decimal open = candle.Open != 0 ? candle.Open : 0.0001m; // Замените 0.0001m на подходящее ненулевое значение
+            decimal close = candle.Close != 0 ? candle.Close : 0.0001m; // Замените 0.0001m на подходящее ненулевое значение
+            return ((candle.High - candle.Low) * 100) / (open < close ? open : close);
         }
 
         // Метод для проверки положительного изменения цены
