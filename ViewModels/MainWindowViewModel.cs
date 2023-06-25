@@ -228,7 +228,8 @@ namespace TinkoffPriceMonitor.ViewModels
 
             foreach (var group in TickerGroups)
             {
-                var tickers = group.Tickers.Split('|');
+                if (group is null) continue;
+                var tickers = group?.Tickers?.Split('|');
 
                 var tickerGroup = new TickerPriceStorage.TickerGroup
                 {
