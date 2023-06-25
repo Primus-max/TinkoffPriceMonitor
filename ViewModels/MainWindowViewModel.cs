@@ -54,9 +54,6 @@ namespace TinkoffPriceMonitor.ViewModels
         public MainWindowViewModel()
         {
 
-
-
-
             #region Инициализация источников данных
             // Инициализация источника данных для отображения (настройки)
             TickerGroups = new ObservableCollection<TickerGroup>();
@@ -158,34 +155,47 @@ namespace TinkoffPriceMonitor.ViewModels
                 Interval = CandleInterval._1Min
             };
 
-            var response = await _client.MarketData.GetCandlesAsync(request);
-
-            // Создание свечи для заданного интервала времени
-            Candle customCandle = new Candle
+            try
             {
-                Open = 0m, // Начальное значение открытия (может быть любым подходящим значением типа decimal)
-                Close = 0m, // Начальное значение закрытия (может быть любым подходящим значением типа decimal)
-                High = 0m, // Начальное значение максимальной цены (может быть любым подходящим значением типа decimal)
-                Low = 0m // Начальное значение минимальной цены (может быть любым подходящим значением типа decimal)
-            };
+                var response = await _client?.MarketData.GetCandlesAsync(request);
+                if (response?.Candles is null || response.Candles.Count == 0)
+                {
+                    return new Candle();
+                }
 
-            foreach (var candle in response.Candles)
-            {
-                // Обновление значений свечи на основе данных из полученных свечей
-                customCandle.Open = Math.Min(customCandle.Open, candle.Open);
-                customCandle.Close = Math.Max(customCandle.Close, candle.Close);
-                customCandle.High = Math.Max(customCandle.High, candle.High);
-                customCandle.Low = Math.Min(customCandle.Low, candle.Low);
+                // Создание свечи для заданного интервала времени
+                Candle customCandle = new Candle
+                {
+                    Open = decimal.MaxValue,
+                    Close = decimal.MinValue,
+                    High = decimal.MinValue,
+                    Low = decimal.MaxValue
+                };
+
+                foreach (var candle in response.Candles)
+                {
+                    // Обновление значений свечи на основе данных из полученных свечей
+                    customCandle.Open = Math.Min(customCandle.Open, candle.Open);
+                    customCandle.Close = Math.Max(customCandle.Close, candle.Close);
+                    customCandle.High = Math.Max(customCandle.High, candle.High);
+                    customCandle.Low = Math.Min(customCandle.Low, candle.Low);
+                }
+
+                return customCandle;
             }
-
-            return customCandle;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при получении свечей. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new Candle();
+            }
         }
+
 
         // Метод для вычисления процентного изменения цены
         private static decimal CalculatePriceChangePercentage(Candle candle)
         {
-            decimal open = candle.Open != 0 ? candle.Open : 0.0001m; // Замените 0.0001m на подходящее ненулевое значение
-            decimal close = candle.Close != 0 ? candle.Close : 0.0001m; // Замените 0.0001m на подходящее ненулевое значение
+            decimal open = candle.Open != 0 ? candle.Open : 0.0001m;
+            decimal close = candle.Close != 0 ? candle.Close : 0.0001m;
             return ((candle.High - candle.Low) * 100) / (open < close ? open : close);
         }
 
