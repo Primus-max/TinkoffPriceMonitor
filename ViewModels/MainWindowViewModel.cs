@@ -239,23 +239,32 @@ namespace TinkoffPriceMonitor.ViewModels
             foreach (var group in TickerGroups)
             {
                 if (group is null) continue;
-                var tickers = group?.Tickers?.Split('|');
+
+                var tickers = group.Tickers?.Split('|');
+                if (tickers is null) continue;
 
                 var tickerGroup = new TickerPriceStorage.TickerGroup
                 {
-                    GroupName = group?.GroupName,
+                    GroupName = group.GroupName,
                     Tickers = new List<TickerPriceStorage.TickerPrice>()
                 };
 
                 foreach (var ticker in tickers)
                 {
-                    SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
-                    var instrument = sharesResponse?.Instruments.FirstOrDefault(x => x.Ticker == ticker);
-
-                    if (instrument != null)
+                    try
                     {
-                        decimal price = await Getters.GetUpdatedPrice(instrument, _client);
-                        tickerGroup.Tickers.Add(new TickerPriceStorage.TickerPrice { Ticker = ticker, Price = price });
+                        SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
+                        var instrument = sharesResponse?.Instruments?.FirstOrDefault(x => x.Ticker == ticker);
+
+                        if (instrument != null)
+                        {
+                            decimal price = await Getters.GetUpdatedPrice(instrument, _client);
+                            tickerGroup.Tickers.Add(new TickerPriceStorage.TickerPrice { Ticker = ticker, Price = price });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Не удалось загрузить данные для тикера {ticker}. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
 
@@ -265,6 +274,7 @@ namespace TinkoffPriceMonitor.ViewModels
             var tickerPriceStorage = new TickerPriceStorage();
             tickerPriceStorage.SaveTickerPrice(tickerGroups);
         }
+
 
         // Метод добавления группы тикеров во View (отображение)
         public void AddTickerGroup()
