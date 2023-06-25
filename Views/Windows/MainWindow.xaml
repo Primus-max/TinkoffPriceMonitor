@@ -12,7 +12,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
 
-        Width="470"
+        Width="420"
         Height="600"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="SingleBorderWindow"
@@ -41,29 +41,17 @@
                         <TextBlock Text="Сообщения о изменении цены" FontSize="16" FontWeight="Bold" Margin="0 0 0 10"/>
 
                         <!-- Пример элементов управления для вывода сообщений -->
-                        <ListView ItemsSource="{Binding PriceChangeMessages}">
-
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Группа" DisplayMemberBinding="{Binding GroupName}" />
-                                    <GridViewColumn Header="Тикер" DisplayMemberBinding="{Binding TickerName}" />
-                                    <GridViewColumn Header="Процент">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding PriceChangePercentage, StringFormat='0.00%'}" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Время">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding EventTime, StringFormat='HH:mm:ss'}" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                        <DataGrid ItemsSource="{Binding PriceChangeMessages}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Группа" Binding="{Binding GroupName}" />
+                                <DataGridTextColumn Header="Тикер" Binding="{Binding TickerName}" />
+                                <DataGridTextColumn Header="Процент" Binding="{Binding PriceChangePercentage, StringFormat='0.00%'}" />
+                                <DataGridTextColumn Header="Время" Binding="{Binding EventTime, StringFormat='HH:mm:ss'}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
 
 
                     </StackPanel>

@@ -67,7 +67,7 @@ namespace TinkoffPriceMonitor.ViewModels
             Initialize();
             LoadSavedData();
             // AddTickerGroup();
-            RunPriceMonitoring();
+            // RunPriceMonitoring();
 
 
 
@@ -112,6 +112,8 @@ namespace TinkoffPriceMonitor.ViewModels
 
                     // Получение свечи за заданный интервал времени
                     Candle customCandle = await GetCustomCandle(instrument, timeFrame);
+
+                    if (customCandle is null) continue;
 
                     // Вычисляем процентное изменение цены
                     decimal priceChangePercentage = CalculatePriceChangePercentage(customCandle);
@@ -194,10 +196,13 @@ namespace TinkoffPriceMonitor.ViewModels
         // Метод для вычисления процентного изменения цены
         private static decimal CalculatePriceChangePercentage(Candle candle)
         {
-            decimal open = candle.Open != 0 ? candle.Open : 0.0001m;
-            decimal close = candle.Close != 0 ? candle.Close : 0.0001m;
+            if (candle is null) return 0;
+
+            decimal open = candle.Open != null && candle.Open != 0 ? candle.Open : 0.0001m;
+            decimal close = candle.Close != null && candle.Close != 0 ? candle.Close : 0.0001m;
             return ((candle.High - candle.Low) * 100) / (open < close ? open : close);
         }
+
 
         // Метод для проверки положительного изменения цены
         private static bool IsPositivePriceChange(Candle candle)
@@ -210,9 +215,6 @@ namespace TinkoffPriceMonitor.ViewModels
         {
             return candle.Open > candle.Close;
         }
-
-
-
 
 
         #region Методы
