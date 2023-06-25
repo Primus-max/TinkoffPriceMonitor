@@ -55,10 +55,11 @@ namespace TinkoffPriceMonitor.ViewModels
             // Инициализация источника данных для отображения (информация по тикерам)
             PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>();
 
-            #region Вызовы методов
+            #region Вызовы методов            
             LoadTickerGroups();
             Initialize();
             LoadSavedData();
+            // AddTickerGroup();
             #endregion
         }
 
@@ -103,12 +104,12 @@ namespace TinkoffPriceMonitor.ViewModels
             tickerPriceStorage.SaveTickerPrice(tickerGroups);
         }
 
-        // Метод добавления тикеров во View (отображение)
+        // Метод добавления группы тикеров во View (отображение)
         public void AddTickerGroup()
         {
             _tickerPriceStorage = new TickerPriceStorage();
 
-            TickerGroup newGroup = new TickerGroup();
+            TickerGroup newGroup = new();
 
             TickerGroups.Add(newGroup);
         }
@@ -154,7 +155,7 @@ namespace TinkoffPriceMonitor.ViewModels
 
         private void LoadSavedData()
         {
-            TickerPriceStorage tickerPriceStorage = new TickerPriceStorage();
+            TickerPriceStorage tickerPriceStorage = new();
 
             List<(string GroupName, TickerPriceStorage.TickerPrice Ticker)> savedData = tickerPriceStorage.LoadTickerPrice();
             foreach (var (groupName, ticker) in savedData)

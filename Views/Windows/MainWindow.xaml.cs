@@ -22,7 +22,7 @@ namespace TinkoffPriceMonitor.Views.Windows
         {
             InitializeComponent();
             _viewModel = new MainWindowViewModel();
-            //DataContext = _viewModel;
+            DataContext = _viewModel;
         }
 
         private void AddGroup_Click(object sender, RoutedEventArgs e)
