@@ -45,6 +45,20 @@
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True"
                                   CanUserAddRows="False">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding  IsPositivePriceChange}" Value="True">
+                                            <Setter Property="Background" Value="Green" />
+                                            <Setter Property="Foreground" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsPositivePriceChange}" Value="False">
+                                            <Setter Property="Background" Value="Red" />
+                                            <Setter Property="Foreground" Value="White" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Группа" Binding="{Binding GroupName}" />
                                 <DataGridTextColumn Header="Тикер" Binding="{Binding TickerName}" />
@@ -53,11 +67,9 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-
 
             <!-- Вкладка с настройками -->
             <TabItem Header="Настройки">

@@ -27,6 +27,7 @@ namespace TinkoffPriceMonitor.ViewModels
         private ObservableCollection<TrackedTickerInfo> _priceChangeMessages = null;
         private TickerPriceStorage _tickerPriceStorage;
         private ObservableCollection<TickerGroup> _tickerGroups;
+        private bool _IsPositivePriceChange = false;
         //private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
         #endregion
 
@@ -43,6 +44,11 @@ namespace TinkoffPriceMonitor.ViewModels
             set => Set(ref _tickerGroups, value);
         }
 
+        public bool IsPositivePriceChange
+        {
+            get => _IsPositivePriceChange;
+            set => Set(ref _IsPositivePriceChange, value);
+        }
         //private ObservableCollection<TrackedTickerInfo> PriceChangeItems
         //{
         //    get => _priceChangeItems;
@@ -67,11 +73,17 @@ namespace TinkoffPriceMonitor.ViewModels
             Initialize();
             LoadSavedData();
             // AddTickerGroup();
-            // RunPriceMonitoring();
-
-
-
+            RunPriceMonitoring();
             #endregion
+        }
+
+
+        public class Candle
+        {
+            public decimal Open { get; set; }
+            public decimal Close { get; set; }
+            public decimal High { get; set; }
+            public decimal Low { get; set; }
         }
 
 
@@ -94,10 +106,6 @@ namespace TinkoffPriceMonitor.ViewModels
             {
                 foreach (var ticker in tickers)
                 {
-                    // Получаем старую цену
-                    decimal oldPrice = tickerPriceStorage.LoadTickerPrice()
-                        .SingleOrDefault(t => t.GroupName == group.GroupName && t.Ticker.Ticker == ticker)
-                        .Ticker?.Price ?? 0;
 
                     // Получаем инструмент по тикеру
                     Share instrument = await GetShareByTicker(ticker);
@@ -115,25 +123,7 @@ namespace TinkoffPriceMonitor.ViewModels
 
                     if (customCandle is null) continue;
 
-                    // Вычисляем процентное изменение цены
-                    decimal priceChangePercentage = CalculatePriceChangePercentage(customCandle);
-
-                    // Проверяем условия и выводим сообщение
-                    if (IsPositivePriceChange(customCandle) && priceChangePercentage > group.PercentageThreshold)
-                    {
-                        // Положительное изменение цены
-                        string message = $"Положительное изменение цены для тикера {ticker}: {priceChangePercentage}%";
-                        // Отправка сообщения или выполнение дополнительных действий
-                    }
-                    else if (IsNegativePriceChange(customCandle) && priceChangePercentage > group.PercentageThreshold)
-                    {
-                        // Отрицательное изменение цены
-                        string message = $"Отрицательное изменение цены для тикера {ticker}: {priceChangePercentage}%";
-                        // Отправка сообщения или выполнение дополнительных действий
-                    }
-
-                    // Обновляем данные в хранилище цен
-                    //tickerPriceStorage.UpdateTickerPrice(group.GroupName, ticker, customCandle.Close);
+                    CalculateAndDisplayPriceChange(customCandle, group.PercentageThreshold);
                 }
 
                 // Задержка перед следующей проверкой цены
@@ -160,6 +150,7 @@ namespace TinkoffPriceMonitor.ViewModels
             try
             {
                 var response = await _client?.MarketData.GetCandlesAsync(request);
+
                 if (response?.Candles is null || response.Candles.Count == 0)
                 {
                     return new Candle();
@@ -192,30 +183,36 @@ namespace TinkoffPriceMonitor.ViewModels
             }
         }
 
-
         // Метод для вычисления процентного изменения цены
-        private static decimal CalculatePriceChangePercentage(Candle candle)
+        private void CalculateAndDisplayPriceChange(Candle customCandle, decimal p)
         {
-            if (candle is null) return 0;
+            decimal open = customCandle.Open != null && customCandle.Open != 0 ? customCandle.Open : 0.0001m;
+            decimal close = customCandle.Close != null && customCandle.Close != 0 ? customCandle.Close : 0.0001m;
+            decimal high = customCandle.High;
+            decimal low = customCandle.Low;
 
-            decimal open = candle.Open != null && candle.Open != 0 ? candle.Open : 0.0001m;
-            decimal close = candle.Close != null && candle.Close != 0 ? candle.Close : 0.0001m;
-            return ((candle.High - candle.Low) * 100) / (open < close ? open : close);
+            decimal priceChangePercentage = ((high - low) * 100 / low);
+
+            if (open < close)
+            {
+                // Положительное изменение цены
+                if (priceChangePercentage > p)
+                {
+                    string message = $"Сигнал: Цена поднялась на {priceChangePercentage:F2}%.";
+                    TrackedTickerInfo trackedTickerInfo = new();
+                    trackedTickerInfo.IsPositivePriceChange = true;
+                    trackedTickerInfo.PriceChangePercentage = priceChangePercentage;
+                    PriceChangeMessages.Add(trackedTickerInfo);
+                    // Ваш код для передачи информации во View или выполнения других действий                  
+                }
+            }
+            else if (open > close)
+            {
+                // Отрицательное изменение цены
+                // Ваш код для обработки отрицательного изменения цены
+                string message = $"Сигнал: Цена поднялась на {priceChangePercentage:F2}%.";
+            }
         }
-
-
-        // Метод для проверки положительного изменения цены
-        private static bool IsPositivePriceChange(Candle candle)
-        {
-            return candle.Open < candle.Close;
-        }
-
-        // Метод для проверки отрицательного изменения цены
-        private static bool IsNegativePriceChange(Candle candle)
-        {
-            return candle.Open > candle.Close;
-        }
-
 
         #region Методы
         // Получаю и возвращаю инструмент по имени тикера из API
