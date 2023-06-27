@@ -68,10 +68,16 @@ namespace TinkoffPriceMonitor.ViewModels
             PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>();
             #endregion
 
+            #region Подписка на события
+            // В конструкторе или методе инициализации MainWindowViewModel:
+            //MonitorThread monitorThread = new MonitorThread();
+            //monitorThread.PriceChangeSignal += MonitorThread_PriceChangeSignal;
+            #endregion
+
             #region Вызовы методов            
             LoadTickerGroups();
             Initialize();
-            LoadSavedData();
+            //LoadSavedData();
             // AddTickerGroup();
             RunPriceMonitoring();
             #endregion
@@ -92,7 +98,12 @@ namespace TinkoffPriceMonitor.ViewModels
         {
             foreach (var group in TickerGroups)
             {
-                await MonitorTickerGroup(group);
+                MonitorThread monitor = new(group, _client);
+                monitor.PriceChangeSignal += MonitorThread_PriceChangeSignal;
+
+                await monitor.StartMonitoringAsync();
+
+                //await MonitorTickerGroup(group);
             }
         }
 
@@ -214,6 +225,19 @@ namespace TinkoffPriceMonitor.ViewModels
             }
         }
 
+        #region Подписчики на события
+        private void MonitorThread_PriceChangeSignal(TrackedTickerInfo trackedTickerInfo)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                PriceChangeMessages.Add(trackedTickerInfo);
+            });
+        }
+
+
+
+        #endregion
+
         #region Методы
         // Получаю и возвращаю инструмент по имени тикера из API
         private async Task<Share> GetShareByTicker(string ticker)
@@ -236,53 +260,52 @@ namespace TinkoffPriceMonitor.ViewModels
         private async Task Initialize()
         {
             _client = await Creaters.CreateClientAsync();
-            await LoadTickerPricesAsync();
-
+            //await LoadTickerPricesAsync();
         }
 
         // Метод загрузки и сохранения цен в барном файле для отображения и дальнейшего сравнения
-        private async Task LoadTickerPricesAsync()
-        {
-            var tickerGroups = new List<TickerPriceStorage.TickerGroup>();
+        //private async Task LoadTickerPricesAsync()
+        //{
+        //    var tickerGroups = new List<TickerPriceStorage.TickerGroup>();
 
-            foreach (var group in TickerGroups)
-            {
-                if (group is null) continue;
+        //    foreach (var group in TickerGroups)
+        //    {
+        //        if (group is null) continue;
 
-                var tickers = group.Tickers?.Split('|');
-                if (tickers is null) continue;
+        //        var tickers = group.Tickers?.Split('|');
+        //        if (tickers is null) continue;
 
-                var tickerGroup = new TickerPriceStorage.TickerGroup
-                {
-                    GroupName = group.GroupName,
-                    Tickers = new List<TickerPriceStorage.TickerPrice>()
-                };
+        //        var tickerGroup = new TickerPriceStorage.TickerGroup
+        //        {
+        //            GroupName = group.GroupName,
+        //            Tickers = new List<TickerPriceStorage.TickerPrice>()
+        //        };
 
-                foreach (var ticker in tickers)
-                {
-                    try
-                    {
-                        SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
-                        var instrument = sharesResponse?.Instruments?.FirstOrDefault(x => x.Ticker == ticker);
+        //        foreach (var ticker in tickers)
+        //        {
+        //            try
+        //            {
+        //                SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
+        //                var instrument = sharesResponse?.Instruments?.FirstOrDefault(x => x.Ticker == ticker);
 
-                        if (instrument != null)
-                        {
-                            decimal price = await Getters.GetUpdatedPrice(instrument, _client);
-                            tickerGroup.Tickers.Add(new TickerPriceStorage.TickerPrice { Ticker = ticker, Price = price });
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Не удалось загрузить данные для тикера {ticker}. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
+        //                if (instrument != null)
+        //                {
+        //                    decimal price = await Getters.GetUpdatedPrice(instrument, _client);
+        //                    //tickerGroup.Tickers.Add(new TickerPriceStorage.TickerPrice { Ticker = ticker, Price = price });
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                MessageBox.Show($"Не удалось загрузить данные для тикера {ticker}. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            }
+        //        }
 
-                tickerGroups.Add(tickerGroup);
-            }
+        //        tickerGroups.Add(tickerGroup);
+        //    }
 
-            var tickerPriceStorage = new TickerPriceStorage();
-            tickerPriceStorage.SaveTickerPrice(tickerGroups);
-        }
+        //    var tickerPriceStorage = new TickerPriceStorage();
+        //    tickerPriceStorage.SaveTickerPrice(tickerGroups);
+        //}
 
         // Метод добавления группы тикеров во View (отображение)
         public void AddTickerGroup()
@@ -348,24 +371,24 @@ namespace TinkoffPriceMonitor.ViewModels
         }
 
         // Метод загрузки и сохранения цен для тикеров из биржи (сохраняем в бинарнике)
-        private void LoadSavedData()
-        {
-            TickerPriceStorage tickerPriceStorage = new();
+        //private void LoadSavedData()
+        //{
+        //    TickerPriceStorage tickerPriceStorage = new();
 
-            List<(string GroupName, TickerPriceStorage.TickerPrice Ticker)> savedData = tickerPriceStorage.LoadTickerPrice();
-            foreach (var (groupName, ticker) in savedData)
-            {
-                TrackedTickerInfo info = new TrackedTickerInfo
-                {
-                    GroupName = groupName,
-                    TickerName = ticker.Ticker,
-                    Price = ticker.Price,
-                    PriceChangePercentage = 0, // Установите нужное значение
-                    EventTime = DateTime.Now // Установите нужное значение
-                };
-                PriceChangeMessages.Add(info);
-            }
-        }
+        //    List<(string GroupName, TickerPriceStorage.TickerPrice Ticker)> savedData = tickerPriceStorage.LoadTickerPrice();
+        //    foreach (var (groupName, ticker) in savedData)
+        //    {
+        //        TrackedTickerInfo info = new TrackedTickerInfo
+        //        {
+        //            GroupName = groupName,
+        //            TickerName = ticker.Ticker,
+        //            Price = ticker.Price,
+        //            PriceChangePercentage = 0, // Установите нужное значение
+        //            EventTime = DateTime.Now // Установите нужное значение
+        //        };
+        //        PriceChangeMessages.Add(info);
+        //    }
+        //}
         #endregion
     }
 }
