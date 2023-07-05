@@ -41,28 +41,27 @@ namespace TinkoffPriceMonitor.ApiServices
         {
             string[] tickers = Group.Tickers.Split('|');
 
-            while (true)
+
+            //PriceChangeMessages.Clear();
+
+            foreach (var ticker in tickers)
             {
-                //PriceChangeMessages.Clear();
+                Share instrument = await GetShareByTicker(ticker);
 
-                foreach (var ticker in tickers)
-                {
-                    Share instrument = await GetShareByTicker(ticker);
+                if (instrument == null) continue;
 
-                    if (instrument == null) continue;
+                int intervalMinutes = Group.Interval;
+                TimeSpan timeFrame = TimeSpan.FromMinutes(intervalMinutes);
+                Candle customCandle = await GetCustomCandle(instrument, timeFrame);
 
-                    int intervalMinutes = Group.Interval;
-                    TimeSpan timeFrame = TimeSpan.FromMinutes(intervalMinutes);
-                    Candle customCandle = await GetCustomCandle(instrument, timeFrame);
+                if (customCandle is null) continue;
 
-                    if (customCandle is null) continue;
-
-                    CalculateAndDisplayPriceChange(customCandle, Group.PercentageThreshold, ticker);
-                }
-
-                // Задержка перед следующей проверкой цены для данной группы
-                await Task.Delay(Group.Interval);
+                CalculateAndDisplayPriceChange(customCandle, Group.PercentageThreshold, ticker);
             }
+
+            // Задержка перед следующей проверкой цены для данной группы
+            // await Task.Delay(Group.Interval);
+
         }
 
         // Метод для получения свечей за заданный интервал времени
@@ -129,47 +128,56 @@ namespace TinkoffPriceMonitor.ApiServices
 
             decimal priceChangePercentage = 0;
 
-            // Проверяем, что значение low не равно нулю перед делением
-            if (low != 0)
+            if (low > 0)
             {
-                priceChangePercentage = ((high - low) * 100 / low);
+                if (open < close)
+                {
+                    priceChangePercentage = ((high - low) * 100 / low);
+                }
+                else if (open > close)
+                {
+                    priceChangePercentage = ((high - low) * 100 / high);
+                }
             }
 
             decimal roundedPercentage = Math.Round(priceChangePercentage, 2);
-            if (open < close)
+
+            if (open < close && priceChangePercentage > p)
             {
-                // Положительное изменение цены
-                if (priceChangePercentage > p)
-                {
-                    // Вызываем событие для передачи информации в MainWindowViewModel
-
-                    TrackedTickerInfo trackedTickerInfo = new();
-                    trackedTickerInfo.IsPositivePriceChange = true;
-                    trackedTickerInfo.PriceChangePercentage = roundedPercentage;
-                    trackedTickerInfo.GroupName = Group.GroupName;
-                    trackedTickerInfo.TickerName = ticker;
-                    trackedTickerInfo.EventTime = DateTime.Now;
-
-                    PriceChangeSignal?.Invoke(trackedTickerInfo);
-
-                    //PriceChangeMessages.Add(trackedTickerInfo);
-                    // Ваш код для передачи информации во View или выполнения других действий
-                    string message1 = $"Сигнал: Цена поднялась на {priceChangePercentage:F2}%.";
-                }
-            }
-            else if (open > close)
-            {
-                TrackedTickerInfo trackedTickerInfo = new();
-                trackedTickerInfo.IsPositivePriceChange = false;
+                TrackedTickerInfo trackedTickerInfo = new TrackedTickerInfo();
+                trackedTickerInfo.IsPositivePriceChange = true;
                 trackedTickerInfo.PriceChangePercentage = roundedPercentage;
                 trackedTickerInfo.GroupName = Group.GroupName;
                 trackedTickerInfo.TickerName = ticker;
                 trackedTickerInfo.EventTime = DateTime.Now;
 
                 PriceChangeSignal?.Invoke(trackedTickerInfo);
-                string message2 = $"Сигнал: Цена поднялась на {priceChangePercentage:F2}%.";
+
+                string message = $"Сигнал: Цена поднялась на {roundedPercentage:F2}%.";
+                // Дальнейшая логика или вывод сообщения
+            }
+            if (open > close && priceChangePercentage > p)
+            {
+                TrackedTickerInfo trackedTickerInfo = new TrackedTickerInfo();
+                trackedTickerInfo.IsPositivePriceChange = false;
+                trackedTickerInfo.PriceChangePercentage = -roundedPercentage; // Изменяем знак на отрицательный
+                trackedTickerInfo.GroupName = Group.GroupName;
+                trackedTickerInfo.TickerName = ticker;
+                trackedTickerInfo.EventTime = DateTime.Now;
+
+                PriceChangeSignal?.Invoke(trackedTickerInfo);
+
+                string message = $"Сигнал: Цена снизилась на {Math.Abs(roundedPercentage):F2}%.";
+                // Дальнейшая логика или вывод сообщения
+            }
+
+            else
+            {
+                string message = $"Сигнал: Цена изменилась, но не достаточно значительно.";
+                // Дальнейшая логика или вывод сообщения
             }
         }
+
 
         private async Task<Share> GetShareByTicker(string ticker)
         {
