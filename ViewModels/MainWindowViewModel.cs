@@ -138,6 +138,11 @@ namespace TinkoffPriceMonitor.ViewModels
                     existingItem.PriceChangePercentage = trackedTickerInfo.PriceChangePercentage;
                     existingItem.GroupName = trackedTickerInfo.GroupName;
                     existingItem.EventTime = DateTime.Now;
+
+                    // Сортировка коллекции по имени группы, и обновление для view
+                    PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>(PriceChangeMessages
+                                            .OrderBy(item => item.GroupName));
+                    //UpdateItemsForGroup(existingItem.GroupName);
                 }
                 else
                 {
@@ -148,6 +153,41 @@ namespace TinkoffPriceMonitor.ViewModels
         }
 
         #endregion
+
+        private void UpdateItemsForGroup(string groupName)
+        {
+            // Создаем новую коллекцию с обновленными элементами
+            ObservableCollection<TrackedTickerInfo> updatedItems = new ObservableCollection<TrackedTickerInfo>();
+
+            foreach (var item in PriceChangeMessages)
+            {
+                if (item.GroupName == groupName)
+                {
+                    // Клонируем элемент, чтобы создать новый экземпляр с обновленными значениями свойств
+                    TrackedTickerInfo updatedItem = new TrackedTickerInfo()
+                    {
+                        IsPositivePriceChange = item.IsPositivePriceChange,
+                        PriceChangePercentage = item.PriceChangePercentage,
+                        GroupName = item.GroupName,
+                        TickerName = item.TickerName, // Обновляем имя тикера
+                        EventTime = DateTime.Now // Обновляем время только для элементов текущей группы
+                    };
+
+                    // Добавляем обновленный элемент в новую коллекцию
+                    updatedItems.Add(updatedItem);
+                }
+                else
+                {
+                    // Для элементов других групп просто добавляем в новую коллекцию без изменений
+                    updatedItems.Add(item);
+                }
+            }
+
+            // Заменяем коллекцию PriceChangeMessages на новую коллекцию с обновленными элементами
+            PriceChangeMessages = updatedItems;
+        }
+
+
 
         #region Методы
         // Метод инициализации клиента и некоторых методов при старте программы

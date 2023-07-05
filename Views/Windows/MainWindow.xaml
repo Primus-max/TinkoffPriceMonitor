@@ -41,7 +41,7 @@
                         <TextBlock Text="Сообщения о изменении цены" FontSize="16" FontWeight="Bold" Margin="0 0 0 10"/>
 
                         <!-- Пример элементов управления для вывода сообщений -->
-                        <DataGrid ItemsSource="{Binding PriceChangeMessages}"
+                        <DataGrid ItemsSource="{Binding PriceChangeMessages, UpdateSourceTrigger=PropertyChanged}"
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True"
                                   CanUserAddRows="False">
@@ -60,10 +60,10 @@
                                 </Style>
                             </DataGrid.RowStyle>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Группа" Binding="{Binding GroupName}" />
-                                <DataGridTextColumn Header="Тикер" Binding="{Binding TickerName}" />
-                                <DataGridTextColumn Header="Процент" Binding="{Binding PriceChangePercentage, StringFormat={}{0:#0.00}%}" />
-                                <DataGridTextColumn Header="Время" Binding="{Binding EventTime, StringFormat='HH:mm:ss'}" />
+                                <DataGridTextColumn Header="Группа" Binding="{Binding GroupName, UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="Тикер" Binding="{Binding TickerName, UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="Процент" Binding="{Binding PriceChangePercentage, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:#0.00}%}" />
+                                <DataGridTextColumn Header="Время" Binding="{Binding EventTime, UpdateSourceTrigger=PropertyChanged, StringFormat='HH:mm:ss'}" />
                             </DataGrid.Columns>
                         </DataGrid>
 
