@@ -1,1 +1,1 @@
-[{"GroupName":"Группа 1","Tickers":"RUAL|ALRS","PercentageThreshold":0.01,"Interval":1},{"GroupName":"Группа 2","Tickers":"TATN|GMKN","PercentageThreshold":0.05,"Interval":2}]
+[{"GroupName":"Группа 1","Tickers":"RUAL|ALRS","PercentageThreshold":0.01,"Interval":1,"WidgetGroupNumber":2,"OrderAmountRubles":1000.0},{"GroupName":"Группа 2","Tickers":"TATN|GMKN","PercentageThreshold":0.05,"Interval":2,"WidgetGroupNumber":3,"OrderAmountRubles":1500.0}]
