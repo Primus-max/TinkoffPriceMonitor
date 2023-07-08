@@ -86,7 +86,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         {
             try
             {
-                var element = _driver.FindElement(By.XPath("//a[contains(@class, 'pro-menu-item') and contains(span[@class, 'pro-text-overflow-ellipsis pro-fill'], 'Инструменты')]"));
+                var element = _driver.FindElement(By.XPath("//li[contains(@class, 'pro-menu-item-wrapper')]//div[@class='pro-text-overflow-ellipsis pro-fill' and text()='Инструменты']"));
                 element.Click();
             }
             catch (Exception ex)
