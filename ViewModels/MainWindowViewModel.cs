@@ -60,14 +60,13 @@ namespace TinkoffPriceMonitor.ViewModels
 
         public MainWindowViewModel()
         {
-            //// ТЕСТОВОЕ ПОДКЛЮЧЕНИЕ
-            //TinkoffTerminalManager terminalManager = new TinkoffTerminalManager();
-            //terminalManager.Start();
-            //terminalManager.OpenTerminal("https://www.tinkoff.ru/terminal/");
+            // тестовое подключение
+            TinkoffTerminalManager terminalmanager = new TinkoffTerminalManager();
+            terminalmanager.Start("");
 
-            //// Другие операции с терминалом Тинькофф
 
-            //terminalManager.Close();
+
+            //terminalmanager.Close();
 
 
 
