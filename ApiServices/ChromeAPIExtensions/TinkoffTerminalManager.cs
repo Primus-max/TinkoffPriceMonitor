@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.Windows;
 using OpenQA.Selenium;
@@ -34,7 +35,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             _driver.Navigate().GoToUrl(_tinkoffTerminalUrl);
 
             // Ожидаю полной загрузки DOM
-            //WaitForPageLoad();
+            WaitForPageLoad();
 
             // Открываю виджеты
             OpenWidgetsWindow();
@@ -49,25 +50,10 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             ChooseTickerGroup();
         }
 
-        // Проверка открыто окно Виджеты
-        private bool IsWidgetPopupPresent()
-        {
-            try
-            {
-                var element = _driver.FindElement(By.ClassName("react-draggable"));
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
 
         // Открываю окно Виджеты
         private void OpenWidgetsWindow()
         {
-            // Проверка открыто ли окно виджеты
-
             try
             {
                 // Открываем если не открыто
@@ -98,22 +84,33 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         // Нажимаю на крестик для выбора группы тикеров
         private void OpenChooseTickerGroups()
         {
+            IWebElement popupElement;
+            IWebElement spanElement;
+
             try
             {
-                var element = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-GroupMenu-GroupMenu-groupCircle-TXTce')]"));
-                var jsExecutor = (IJavaScriptExecutor)_driver;
-
-                // Установка свойства display в значение "block" с использованием JavaScript
-                jsExecutor.ExecuteScript("arguments[0].style.display = 'block';", element);
-
-                // Выполнение клика на элементе
-                element.Click();
+                popupElement = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]//div[contains(text(), 'Инструменты')]//ancestor::div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]"));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при поиске и клике на элементе: {ex.Message}");
+                MessageBox.Show($"Ошибка при поиске элемента popup: {ex.Message}");
+                return;
+            }
+
+            try
+            {
+                spanElement = popupElement.FindElement(By.CssSelector("span.pro-popover-target"));
+
+                // Выполнение клика на элементе
+                spanElement.Click();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при поиске элемента span: {ex.Message}");
+                return;
             }
         }
+
 
         // Выбираю группу тикеров
         private void ChooseTickerGroup()
@@ -139,10 +136,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
         }
 
-
-
-
-        private void StartChrome()
+        private static void StartChrome()
         {
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -150,9 +144,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 Arguments = "--remote-debugging-port=9222"
             };
 
-            Process.Start(startInfo); // Запускаю браузер
-
-            //WaitForPageLoad(); // Ожидание загрузки браузера
+            Process.Start(startInfo); // Запускаю браузер            
         }
 
         private void WaitForPageLoad()
