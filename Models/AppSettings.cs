@@ -12,5 +12,8 @@ namespace TinkoffPriceMonitor.Models
         public string? Tickers { get; set; }
         public decimal PercentageThreshold { get; set; }
         public int Interval { get; set; }
+        public int WidgetGroupNumber { get; set; } // Поле № группы виджетов
+        public decimal OrderAmountRubles { get; set; } // Поле Сумма в рублях
     }
+
 }
