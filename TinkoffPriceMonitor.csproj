@@ -13,6 +13,11 @@
 		<PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
 		<PackageReference Include="MaterialDesignThemes.MahApps" Version="0.3.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Selenium.Support" Version="4.10.0" />
+		<PackageReference Include="Selenium.WebDriver" Version="4.10.0" />
+		<PackageReference Include="System.IO.Ports" Version="7.0.0" />
+		<PackageReference Include="System.Management" Version="7.0.2" />
+		<PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
 		<PackageReference Include="Tinkoff.InvestApi" Version="0.6.1" />
 		<PackageReference Include="Tinkoff.Trading.OpenApi" Version="1.7.5" />
 	</ItemGroup>

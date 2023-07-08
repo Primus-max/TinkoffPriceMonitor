@@ -2,6 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Newtonsoft.Json;
+using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,6 +15,7 @@ using System.Windows;
 using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
 using TinkoffPriceMonitor.ApiServices;
+using TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions;
 using TinkoffPriceMonitor.Models;
 using TinkoffPriceMonitor.ViewModels.BaseView;
 
@@ -58,6 +60,16 @@ namespace TinkoffPriceMonitor.ViewModels
 
         public MainWindowViewModel()
         {
+
+            TinkoffTerminalManager terminalManager = new TinkoffTerminalManager();
+            terminalManager.Start();
+            terminalManager.OpenTerminal("https://www.tinkoff.ru/terminal/");
+
+            // Другие операции с терминалом Тинькофф
+
+            terminalManager.Close();
+
+
 
             #region Инициализация источников данных
             // Инициализация источника данных для отображения (настройки)
