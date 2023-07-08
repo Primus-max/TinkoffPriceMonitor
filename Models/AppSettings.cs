@@ -15,5 +15,4 @@ namespace TinkoffPriceMonitor.Models
         public int WidgetGroupNumber { get; set; } // Поле № группы виджетов
         public decimal OrderAmountRubles { get; set; } // Поле Сумма в рублях
     }
-
 }

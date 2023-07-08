@@ -72,7 +72,7 @@
             </TabItem>
 
             <!-- Вкладка с настройками -->
-            <TabItem Header="Настройки">
+            <TabItem Header="Тикеры">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -127,6 +127,16 @@
                     </StackPanel>
 
                 </Grid>
+            </TabItem>
+
+            <TabItem Header="Настройки">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Токен Тинькофф:" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TinkoffToken}"/>
+
+                    <TextBlock Text="Месторасположение Chrome:" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding ChromeLocation}"/>
+                </StackPanel>
             </TabItem>
 
         </TabControl>
