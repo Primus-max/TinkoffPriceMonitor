@@ -326,7 +326,7 @@ namespace TinkoffPriceMonitor.ViewModels
             }
         }
 
-        // Загружаю данные для отображения, токен и путь к хром
+        // Загружаю данные для отображения, токен и путь к хром, при инициализации
         private void LoadSettings()
         {
             string? filePath = "settings.json";
@@ -353,6 +353,37 @@ namespace TinkoffPriceMonitor.ViewModels
             {
                 MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
             }
+        }
+
+        // Метод получения данных из файла (для применения в разных частях кода)
+        private SettingsModel GetSettings()
+        {
+            string filePath = "settings.json";
+            SettingsModel settingsModel = new SettingsModel();
+
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    // Если файл существует, загрузите его содержимое
+                    string jsonData = File.ReadAllText(filePath);
+                    JObject data = JObject.Parse(jsonData);
+
+                    // Пример загрузки данных из JSON в модель представления
+                    settingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
+                    settingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
+                }
+                else
+                {
+                    MessageBox.Show("Файл настроек не найден. Создана новая модель представления");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
+            }
+
+            return settingsModel;
         }
 
         #endregion
