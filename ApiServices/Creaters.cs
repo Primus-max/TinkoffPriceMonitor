@@ -20,7 +20,7 @@ namespace TinkoffPriceMonitor.ApiServices
         {
             string? token = GetSettings().TinkoffToken;
 
-            //if (string.IsNullOrEmpty(token)) return Task.CompletedTask;;
+            //if (string.IsNullOrEmpty(token)) return Task.CompletedTask;
 
             var appName = "tinkoff.invest-api-csharp-sdk";
             var callCredentials = CallCredentials.FromInterceptor((_, metadata) =>
@@ -34,7 +34,7 @@ namespace TinkoffPriceMonitor.ApiServices
             {
                 Names =
         {
-            MethodName.Default,
+        MethodName.Default,
         },
                 RetryPolicy = new RetryPolicy
                 {
@@ -43,9 +43,9 @@ namespace TinkoffPriceMonitor.ApiServices
                     MaxBackoff = TimeSpan.FromSeconds(5.0),
                     BackoffMultiplier = 1.5,
                     RetryableStatusCodes =
-            {
-                StatusCode.Unavailable,
-            },
+        {
+        StatusCode.Unavailable,
+        },
                 },
             };
 
@@ -55,9 +55,9 @@ namespace TinkoffPriceMonitor.ApiServices
                 ServiceConfig = new ServiceConfig
                 {
                     MethodConfigs =
-            {
-                methodConfig,
-            },
+        {
+        methodConfig,
+        },
                 },
             };
 
@@ -68,6 +68,7 @@ namespace TinkoffPriceMonitor.ApiServices
             return Task.FromResult(client);
         }
 
+        // Загружаю токен
         private static SettingsModel GetSettings()
         {
             string filePath = "settings.json";
@@ -84,10 +85,6 @@ namespace TinkoffPriceMonitor.ApiServices
                     // Пример загрузки данных из JSON в модель представления
                     settingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
                     settingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
-                }
-                else
-                {
-                    MessageBox.Show("Файл настроек не найден. Создана новая модель представления");
                 }
             }
             catch (Exception ex)

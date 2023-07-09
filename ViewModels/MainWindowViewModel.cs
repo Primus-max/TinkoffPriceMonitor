@@ -34,6 +34,7 @@ namespace TinkoffPriceMonitor.ViewModels
         private ObservableCollection<TickerGroup> _tickerGroups;
         private bool _IsPositivePriceChange = false;
         private SettingsModel _settingsModel;
+        private TickerGroup _selectedTickerGroup;
         //private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
         #endregion
 
@@ -61,6 +62,12 @@ namespace TinkoffPriceMonitor.ViewModels
             get => _settingsModel;
             set => Set(ref _settingsModel, value);
         }
+
+        public TickerGroup SelectedTickerGroup
+        {
+            get => _selectedTickerGroup;
+            set => Set(ref _selectedTickerGroup, value);
+        }
         #endregion
 
         #region комманды
@@ -71,8 +78,8 @@ namespace TinkoffPriceMonitor.ViewModels
         public MainWindowViewModel()
         {
             // тестовое подключение
-            //TinkoffTerminalManager terminalmanager = new TinkoffTerminalManager();
-            //terminalmanager.Start("");
+            TinkoffTerminalManager terminalmanager = new TinkoffTerminalManager();
+            terminalmanager.Start("");
 
 
 

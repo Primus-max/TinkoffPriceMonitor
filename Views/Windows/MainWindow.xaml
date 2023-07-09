@@ -48,7 +48,7 @@
                             <DataGrid.RowStyle>
                                 <Style TargetType="DataGridRow">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding  IsPositivePriceChange}" Value="True">
+                                        <DataTrigger Binding="{Binding IsPositivePriceChange}" Value="True">
                                             <Setter Property="Background" Value="Green" />
                                             <Setter Property="Foreground" Value="White" />
                                         </DataTrigger>
@@ -64,8 +64,19 @@
                                 <DataGridTextColumn Header="Тикер" Binding="{Binding TickerName, UpdateSourceTrigger=PropertyChanged}" />
                                 <DataGridTextColumn Header="Процент" Binding="{Binding PriceChangePercentage, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:#0.00}%}" />
                                 <DataGridTextColumn Header="Время" Binding="{Binding EventTime, UpdateSourceTrigger=PropertyChanged, StringFormat='HH:mm:ss'}" />
+                                <DataGridTemplateColumn Header="">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Кнопка" Command="{Binding DataContext.YourCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}"
+                                                    Background="Green" Foreground="White" BorderThickness="0" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+
+
 
                     </StackPanel>
                 </ScrollViewer>

@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
@@ -17,7 +18,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
     {
         private IWebDriver _driver;
         private Uri _tinkoffTerminalUrl = new("https://www.tinkoff.ru/terminal/");
-        private string? _tickerGroupName = "Группа 2";
+        private string? _tickerGroupName = "ALRS";
 
         // Метод, точка входа
         public void Start(string tickerGroupName)
@@ -44,6 +45,12 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             // Ожидаю полной загрузки DOM
             WaitForPageLoad();
 
+            // Проверяю наличие кнопки начать инвестировать
+            CheckBeginInvestButtonPresent();
+
+            // Проверяю есть ли запроса пинкода
+            CheckOrEnterPinCode();
+
             // Открываю виджеты
             OpenWidgetsWindow();
 
@@ -55,6 +62,8 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 
             // Выбираю группу тикеров
             ChooseTickerGroup();
+
+            InputMoneyValue();
         }
 
         // Открываю окно Виджеты
@@ -78,7 +87,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         {
             try
             {
-                var element = _driver.FindElement(By.XPath("//li[contains(@class, 'pro-menu-item-wrapper')]//div[@class='pro-text-overflow-ellipsis pro-fill' and text()='Инструменты']"));
+                var element = _driver.FindElement(By.XPath("//li[contains(@class, 'pro-menu-item-wrapper')]//div[@class='pro-text-overflow-ellipsis pro-fill' and text()='Заявка']"));
                 element.Click();
             }
             catch (Exception ex)
@@ -95,7 +104,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 
             try
             {
-                popupElement = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]//div[contains(text(), 'Инструменты')]//ancestor::div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]"));
+                popupElement = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]//div[contains(text(), 'Заявка')]//ancestor::div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]"));
             }
             catch (Exception ex)
             {
@@ -141,6 +150,69 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
         }
 
+        // Проверяю если есть на странице пин код,, если то ввожу
+        private void CheckOrEnterPinCode()
+        {
+            string? pinCode = "4040";
+
+            try
+            {
+                // Поиск элемента с id "pinCodeField"
+                IWebElement pinCodeField = _driver.FindElement(By.Id("pinCodeField"));
+
+                // Получение всех полей ввода пин-кода внутри div
+                var inputFields = pinCodeField.FindElements(By.TagName("input"));
+
+                // Проверка, что найдено 4 поля ввода
+                if (inputFields.Count != 4)
+                {
+                    Console.WriteLine("Ошибка: Не удалось найти 4 поля ввода пин-кода.");
+                    return;
+                }
+
+                // Ввод пин-кода в каждое поле
+                for (int i = 0; i < inputFields.Count; i++)
+                {
+                    inputFields[i].SendKeys(pinCode[i].ToString());
+
+                    Thread.Sleep(500);
+                }
+
+                // Ожидаю загрузки станицы
+                WaitForPageLoad();
+
+            }
+            catch (Exception) { }
+        }
+
+        // Проверяю на странице кнопку Начать инвестировать и кликаю если есть
+        public void CheckBeginInvestButtonPresent()
+        {
+            try
+            {
+                IWebElement beginInvestButton = _driver.FindElement(By.ClassName("abou--HIZq.ibou--HIZq.cbou--HIZq"));
+                beginInvestButton.Click();
+
+                // Ожидаю загрузки станицы
+                WaitForPageLoad();
+            }
+            catch (Exception) { }
+        }
+
+        //Ввожу сумму в поле
+        public void InputMoneyValue()
+        {
+            try
+            {
+                // Получаю элемент для ввода суммы
+                IWebElement inputElement = _driver.FindElement(By.CssSelector("input[type='text'][precision='0'][min='0'][max='1000000000'][tabindex='1'][locale='ru'][class='pro-input'][data-qa-tag='input']"));
+
+                // Ввожу сумму
+                inputElement.SendKeys("10000");
+            }
+            catch (Exception) { }
+        }
+
         // Запускаю Chrome
         private static void StartChrome()
         {
@@ -176,6 +248,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             _driver?.Quit();
         }
 
+        // Загружаю путь к chrome
         private static SettingsModel GetSettings()
         {
             string filePath = "settings.json";
@@ -192,10 +265,6 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                     // Пример загрузки данных из JSON в модель представления
                     settingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
                     settingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
-                }
-                else
-                {
-                    MessageBox.Show("Файл настроек не найден. Создана новая модель представления");
                 }
             }
             catch (Exception ex)
