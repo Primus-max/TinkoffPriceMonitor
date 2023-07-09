@@ -168,6 +168,15 @@
                                      MaxWidth="450"
                                      Margin="10 0 0 0" />
                         </StackPanel>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Text="ПинКод:"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Bottom" />
+                            <TextBox Text="{Binding SettingsModel.PinCode, Mode=TwoWay}"
+                                     MinWidth="290"
+                                     MaxWidth="450"
+                                     Margin="10 0 0 0" />
+                        </StackPanel>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1"

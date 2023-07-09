@@ -10,5 +10,6 @@ namespace TinkoffPriceMonitor.Models
     {
         public string? TinkoffToken { get; set; }
         public string? ChromeLocation { get; set; }
+        public string? PinCode { get; set; }
     }
 }

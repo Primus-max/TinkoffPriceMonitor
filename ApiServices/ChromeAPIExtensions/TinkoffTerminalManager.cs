@@ -153,7 +153,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         // Проверяю если есть на странице пин код,, если то ввожу
         private void CheckOrEnterPinCode()
         {
-            string? pinCode = "4040";
+            string? _pinCode = GetSettings().PinCode;
 
             try
             {
@@ -173,7 +173,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 // Ввод пин-кода в каждое поле
                 for (int i = 0; i < inputFields.Count; i++)
                 {
-                    inputFields[i].SendKeys(pinCode[i].ToString());
+                    inputFields[i].SendKeys(_pinCode[i].ToString());
 
                     Thread.Sleep(500);
                 }

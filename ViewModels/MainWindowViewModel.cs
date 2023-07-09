@@ -78,8 +78,8 @@ namespace TinkoffPriceMonitor.ViewModels
         public MainWindowViewModel()
         {
             // тестовое подключение
-            TinkoffTerminalManager terminalmanager = new TinkoffTerminalManager();
-            terminalmanager.Start("");
+            //TinkoffTerminalManager terminalmanager = new TinkoffTerminalManager();
+            //terminalmanager.Start("");
 
 
 
@@ -309,6 +309,7 @@ namespace TinkoffPriceMonitor.ViewModels
             JObject data = new JObject();
             data["TinkoffToken"] = tinkoffToken;
             data["ChromeLocation"] = chromeLocation;
+            data["PinCode"] = chromeLocation;
 
             string? jsonData = data.ToString();
             string? filePath = "settings.json";
@@ -352,6 +353,7 @@ namespace TinkoffPriceMonitor.ViewModels
                     // Пример загрузки данных из JSON в модель представления
                     SettingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
                     SettingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
+                    SettingsModel.PinCode = data["PinCode"]?.ToString();
                 }
                 else
                 {
