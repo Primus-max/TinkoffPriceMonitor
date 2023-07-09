@@ -19,6 +19,7 @@ using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
 using TinkoffPriceMonitor.ApiServices;
 using TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions;
+using TinkoffPriceMonitor.Logs;
 using TinkoffPriceMonitor.Models;
 using TinkoffPriceMonitor.ViewModels.BaseView;
 
@@ -31,10 +32,10 @@ namespace TinkoffPriceMonitor.ViewModels
         private InvestApiClient? _client = null;
         private ObservableCollection<TrackedTickerInfo> _priceChangeMessages = null;
         // private TickerPriceStorage _tickerPriceStorage;
-        private ObservableCollection<TickerGroup> _tickerGroups;
+        private ObservableCollection<TickerGroup> _tickerGroups = null!;
         private bool _IsPositivePriceChange = false;
-        private SettingsModel _settingsModel;
-        private TickerGroup _selectedTickerGroup;
+        private SettingsModel _settingsModel = null!;
+        private TickerGroup _selectedTickerGroup = null!;
         //private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
         #endregion
 
@@ -89,6 +90,7 @@ namespace TinkoffPriceMonitor.ViewModels
 
             #region Инициализация источников данных
 
+            LoggerInitializer.InitializeLogger();
             // Инициализация источника данных для токена и адреса хрома
             SettingsModel = new SettingsModel();
 
@@ -134,6 +136,7 @@ namespace TinkoffPriceMonitor.ViewModels
         //    }
         //}
 
+        // Метод мониторинга тикеров
         private async Task RunPriceMonitoring()
         {
             List<Task> monitorTasks = new List<Task>();

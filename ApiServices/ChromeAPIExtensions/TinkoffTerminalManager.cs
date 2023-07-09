@@ -9,6 +9,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.DevTools.V112.Page;
 using OpenQA.Selenium.Support.UI;
+using Serilog;
 using TinkoffPriceMonitor.Models;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -19,13 +20,17 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         private IWebDriver _driver;
         private Uri _tinkoffTerminalUrl = new("https://www.tinkoff.ru/terminal/");
         private string? _tickerGroupName = "ALRS";
+        private string? _orderAmount = string.Empty;
+
+        public TinkoffTerminalManager(string tickerGroupName, string orderAmount)
+        {
+            _tickerGroupName = tickerGroupName;
+            _orderAmount = orderAmount;
+        }
 
         // Метод, точка входа
-        public void Start(string tickerGroupName)
+        public void Start()
         {
-            //_tickerGroupName = tickerGroupName;
-
-
             StartChrome();
             ConnectToChromeDriver();
             OpenTerminal();
@@ -39,7 +44,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 return;
             }
 
-            // Перехожу в терминал
+            // Перехожу на страницу терминала
             _driver.Navigate().GoToUrl(_tinkoffTerminalUrl);
 
             // Ожидаю полной загрузки DOM
@@ -63,6 +68,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             // Выбираю группу тикеров
             ChooseTickerGroup();
 
+            // Вставляю сумму в поле
             InputMoneyValue();
         }
 
@@ -75,9 +81,10 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 var element = _driver.FindElement(By.XPath("//button[contains(@class, 'pro-button pro-minimal pro-small')]/span[text()='Виджеты']"));
                 element.Click();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Log.Error($"В методе OpenWidgetsWindow произошла ошибка: {ex.Message}");
+                return;
             }
 
         }
@@ -92,7 +99,8 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при поиске и клике на кнопке 'Инструменты': {ex.Message}");
+                Log.Error($"В методе ClickToolsButton произошла ошибка: {ex.Message}");
+                return;
             }
         }
 
@@ -108,7 +116,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при поиске элемента popup: {ex.Message}");
+                Log.Error($"В методе OpenChooseTickerGroups произошла ошибка: {ex.Message}");
                 return;
             }
 
@@ -121,7 +129,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при поиске элемента span: {ex.Message}");
+                Log.Error($"В методе OpenChooseTickerGroups произошла ошибка: {ex.Message}");
                 return;
             }
         }
@@ -146,7 +154,8 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при поиске и клике на элементе списка: {ex.Message}");
+                Log.Error($"В методе ChooseTickerGroup произошла ошибка: {ex.Message}");
+                return;
             }
         }
 
@@ -162,13 +171,6 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 
                 // Получение всех полей ввода пин-кода внутри div
                 var inputFields = pinCodeField.FindElements(By.TagName("input"));
-
-                // Проверка, что найдено 4 поля ввода
-                if (inputFields.Count != 4)
-                {
-                    Console.WriteLine("Ошибка: Не удалось найти 4 поля ввода пин-кода.");
-                    return;
-                }
 
                 // Ввод пин-кода в каждое поле
                 for (int i = 0; i < inputFields.Count; i++)
@@ -210,7 +212,11 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 // Ввожу сумму
                 inputElement.SendKeys("10000");
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                Log.Error($"В методе InputMoneyValue произошла ошибка: {ex.Message}");
+                return;
+            }
         }
 
         // Запускаю Chrome
@@ -229,8 +235,12 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         // Метод ожидания загузки DOM
         private void WaitForPageLoad()
         {
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
-            wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
+                wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
+            }
+            catch (Exception) { }
         }
 
         // Подключаю драйвер к запущенному браузеру
