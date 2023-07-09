@@ -67,6 +67,7 @@ namespace TinkoffPriceMonitor.ViewModels
         public ICommand SaveCommand { get; private set; }
 
         #endregion
+
         public MainWindowViewModel()
         {
             // тестовое подключение
@@ -90,6 +91,7 @@ namespace TinkoffPriceMonitor.ViewModels
             // Инициализация источника данных для отображения (информация по тикерам)
             PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>();
 
+            // Инициализация комманды сохранения пути и токена
             SaveCommand = new RelayCommand(SaveSettings);
 
             #endregion
@@ -99,6 +101,7 @@ namespace TinkoffPriceMonitor.ViewModels
             #endregion
 
             #region Вызовы методов
+            LoadSettings();
             LoadTickerGroups();
             Initialize();
             //LoadSavedData();
@@ -237,10 +240,10 @@ namespace TinkoffPriceMonitor.ViewModels
         public void SaveDataToJson()
         {
             // Сериализация TickerGroups в JSON
-            string jsonData = JsonConvert.SerializeObject(TickerGroups);
+            string? jsonData = JsonConvert.SerializeObject(TickerGroups);
 
             // Получение пути к файлу в корне программы
-            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.json");
+            string? filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.json");
 
             try
             {
@@ -264,11 +267,11 @@ namespace TinkoffPriceMonitor.ViewModels
         // Метод загрузки данных в источник данных для отображения во View (главного окна)
         public void LoadTickerGroups()
         {
-            string filePath = "data.json";
+            string? filePath = "data.json";
 
             if (File.Exists(filePath))
             {
-                string json = File.ReadAllText(filePath);
+                string? json = File.ReadAllText(filePath);
 
                 try
                 {
@@ -290,8 +293,8 @@ namespace TinkoffPriceMonitor.ViewModels
         private void SaveSettings()
         {
             // Получите значения из свойств вашей модели представления (SettingsModel)
-            string tinkoffToken = SettingsModel.TinkoffToken;
-            string chromeLocation = SettingsModel.ChromeLocation;
+            string? tinkoffToken = SettingsModel.TinkoffToken;
+            string? chromeLocation = SettingsModel.ChromeLocation;
 
             // Выполните сохранение данных в JSON
 
@@ -300,26 +303,22 @@ namespace TinkoffPriceMonitor.ViewModels
             data["TinkoffToken"] = tinkoffToken;
             data["ChromeLocation"] = chromeLocation;
 
-            string jsonData = data.ToString();
-            string filePath = "settings.json";
+            string? jsonData = data.ToString();
+            string? filePath = "settings.json";
 
             try
             {
                 if (!File.Exists(filePath))
                 {
                     // Если файл не существует, создайте новый файл
-                    using (StreamWriter file = File.CreateText(filePath))
-                    {
-                        file.Write(jsonData);
-                    }
+                    using StreamWriter file = File.CreateText(filePath);
+                    file.Write(jsonData);
                 }
                 else
                 {
                     // Если файл существует, перезапишите его содержимое
                     File.WriteAllText(filePath, jsonData);
                 }
-
-                MessageBox.Show("Данные записались");
             }
             catch (Exception ex)
             {
@@ -327,6 +326,34 @@ namespace TinkoffPriceMonitor.ViewModels
             }
         }
 
+        // Загружаю данные для отображения, токен и путь к хром
+        private void LoadSettings()
+        {
+            string? filePath = "settings.json";
+
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    // Если файл существует, загрузите его содержимое
+                    string? jsonData = File.ReadAllText(filePath);
+                    JObject data = JObject.Parse(jsonData);
+
+                    // Пример загрузки данных из JSON в модель представления
+                    SettingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
+                    SettingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
+                }
+                else
+                {
+                    // Если файла нет, создайте новую модель представления
+                    SettingsModel = new SettingsModel();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
+            }
+        }
 
         #endregion
     }
