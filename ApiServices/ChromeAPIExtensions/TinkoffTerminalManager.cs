@@ -13,11 +13,11 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
     {
         private IWebDriver _driver;
         private Uri _tinkoffTerminalUrl = new("https://www.tinkoff.ru/terminal/");
-        private string? _tickerGroupName;
+        private string? _tickerGroupName = "Группа 2";
 
         public void Start(string tickerGroupName)
         {
-            _tickerGroupName = tickerGroupName;
+            //_tickerGroupName = tickerGroupName;
 
             StartChrome();
             ConnectToChromeDriver();
@@ -111,13 +111,12 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
         }
 
-
         // Выбираю группу тикеров
         private void ChooseTickerGroup()
         {
             try
             {
-                var list = _driver.FindElement(By.CssSelector("body > ul.pro-menu.pro-small.src-core-components-GroupMenu-GroupMenu-popover-CHTjJ.kvt-menu-load"));
+                var list = _driver.FindElement(By.CssSelector("ul.pro-menu.pro-small.src-core-components-GroupMenu-GroupMenu-popover-CHTjJ.kvt-menu-load"));
                 var listItem = list.FindElements(By.CssSelector("li.pro-menu-item-wrapper"));
 
                 foreach (var item in listItem)
@@ -136,6 +135,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
         }
 
+        // Запускаю Chrome
         private static void StartChrome()
         {
             ProcessStartInfo startInfo = new ProcessStartInfo
@@ -147,12 +147,14 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             Process.Start(startInfo); // Запускаю браузер            
         }
 
+        // Метод ожидания загузки DOM
         private void WaitForPageLoad()
         {
             WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
             wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
         }
 
+        // Подключаю драйвер к запущенному браузеру
         private void ConnectToChromeDriver()
         {
             var options = new ChromeOptions();
@@ -161,6 +163,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             _driver = new ChromeDriver(options);
         }
 
+        // Закрываю драйвер
         public void Close()
         {
             _driver?.Quit();
