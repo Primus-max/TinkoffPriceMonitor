@@ -8,7 +8,7 @@ namespace TinkoffPriceMonitor.Models
 {
     public class SettingsModel
     {
-        public string TinkoffToken { get; set; }
-        public string ChromeLocation { get; set; }
+        public string? TinkoffToken { get; set; }
+        public string? ChromeLocation { get; set; }
     }
 }

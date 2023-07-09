@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using GalaSoft.MvvmLight.Command;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
 using TinkoffPriceMonitor.ApiServices;
@@ -22,254 +25,309 @@ using TinkoffPriceMonitor.ViewModels.BaseView;
 namespace TinkoffPriceMonitor.ViewModels
 {
 
-public class MainWindowViewModel : BaseViewModel
-{
-#region Приватные свойства
-private InvestApiClient? _client = null;
-private ObservableCollection<TrackedTickerInfo> _priceChangeMessages = null;
-    // private TickerPriceStorage _tickerPriceStorage;
-    private ObservableCollection<TickerGroup> _tickerGroups;
+    public class MainWindowViewModel : BaseViewModel
+    {
+        #region Приватные свойства
+        private InvestApiClient? _client = null;
+        private ObservableCollection<TrackedTickerInfo> _priceChangeMessages = null;
+        // private TickerPriceStorage _tickerPriceStorage;
+        private ObservableCollection<TickerGroup> _tickerGroups;
         private bool _IsPositivePriceChange = false;
+        private SettingsModel _settingsModel;
         //private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
+        #endregion
+
+        #region Публичные свойства
+        public ObservableCollection<TrackedTickerInfo> PriceChangeMessages
+        {
+            get => _priceChangeMessages;
+            set => Set(ref _priceChangeMessages, value);
+        }
+
+        public ObservableCollection<TickerGroup> TickerGroups
+        {
+            get => _tickerGroups;
+            set => Set(ref _tickerGroups, value);
+        }
+
+        public bool IsPositivePriceChange
+        {
+            get => _IsPositivePriceChange;
+            set => Set(ref _IsPositivePriceChange, value);
+        }
+
+        public SettingsModel SettingsModel
+        {
+            get => _settingsModel;
+            set => Set(ref _settingsModel, value);
+        }
+        #endregion
+
+        #region комманды
+        public ICommand SaveCommand { get; private set; }
+
+        #endregion
+        public MainWindowViewModel()
+        {
+            // тестовое подключение
+            //TinkoffTerminalManager terminalmanager = new TinkoffTerminalManager();
+            //terminalmanager.Start("");
+
+
+
+            //terminalmanager.Close();
+
+
+
+            #region Инициализация источников данных
+
+            // Инициализация источника данных для токена и адреса хрома
+            SettingsModel = new SettingsModel();
+
+            // Инициализация источника данных для отображения (настройки)
+            TickerGroups = new ObservableCollection<TickerGroup>();
+
+            // Инициализация источника данных для отображения (информация по тикерам)
+            PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>();
+
+            SaveCommand = new RelayCommand(SaveSettings);
+
             #endregion
 
-            #region Публичные свойства
-            public ObservableCollection<TrackedTickerInfo> PriceChangeMessages
+            #region Подписка на события
+
+            #endregion
+
+            #region Вызовы методов
+            LoadTickerGroups();
+            Initialize();
+            //LoadSavedData();
+            // AddTickerGroup();
+            RunPriceMonitoring();
+            #endregion
+        }
+
+
+        // Метод для запуска мониторинга цен для всех групп тикеров
+        //private async void RunPriceMonitoring()
+        //{
+        //    foreach (var group in TickerGroups)
+        //    {
+        //        MonitorThread monitor = new(group, _client);
+        //        monitor.PriceChangeSignal += MonitorThread_PriceChangeSignal;
+
+        //        await monitor.StartMonitoringAsync();
+
+        //        //Thread.Sleep(10000);
+        //        //await MonitorTickerGroup(group);
+
+        //    }
+        //}
+
+        private async Task RunPriceMonitoring()
+        {
+            List<Task> monitorTasks = new List<Task>();
+
+            foreach (var group in TickerGroups)
+            {
+                var monitorTask = Task.Run(async () =>
                 {
-get => _priceChangeMessages;
-set => Set(ref _priceChangeMessages, value);
-                        }
+                    while (true)
+                    {
+                        MonitorThread monitor = new MonitorThread(group, _client);
+                        monitor.PriceChangeSignal += MonitorThread_PriceChangeSignal;
+                        await monitor.StartMonitoringAsync();
 
-                        public ObservableCollection<TickerGroup> TickerGroups
-                            {
-get => _tickerGroups;
-set => Set(ref _tickerGroups, value);
-                                    }
+                        int delayMilliseconds = group.Interval * 60 * 1000; // Преобразование минут в миллисекунды
+                        await Task.Delay(delayMilliseconds);
+                    }
+                });
 
-                                    public bool IsPositivePriceChange
-                                    {
-get => _IsPositivePriceChange;
-set => Set(ref _IsPositivePriceChange, value);
-                                            }
-                                            //private ObservableCollection<TrackedTickerInfo> PriceChangeItems
-                                                //{
-//    get => _priceChangeItems;
-//    set => Set(ref _priceChangeItems, value);
-                                                        //}
-                                                        #endregion
+                monitorTasks.Add(monitorTask);
+            }
 
-                                                        public MainWindowViewModel()
-                                                        {
-                                                        // тестовое подключение
-                                                        //TinkoffTerminalManager terminalmanager = new TinkoffTerminalManager();
-                                                        //terminalmanager.Start("");
+            await Task.WhenAll(monitorTasks);
+        }
 
 
+        #region Подписчики на события
+        private void MonitorThread_PriceChangeSignal(TrackedTickerInfo trackedTickerInfo)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // Проверяем, существует ли элемент с таким же именем тикера в коллекции
+                var existingItem = PriceChangeMessages.FirstOrDefault(item => item.TickerName == trackedTickerInfo.TickerName);
 
-                                                        //terminalmanager.Close();
+                if (existingItem != null)
+                {
+                    // Обновляем существующий элемент новыми данными
+                    existingItem.IsPositivePriceChange = trackedTickerInfo.IsPositivePriceChange;
+                    existingItem.PriceChangePercentage = trackedTickerInfo.PriceChangePercentage;
+                    existingItem.GroupName = trackedTickerInfo.GroupName;
+                    existingItem.EventTime = DateTime.Now;
 
+                    // Сортировка коллекции по имени группы, и обновление для view
+                    PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>(PriceChangeMessages
+                                                .OrderBy(item => item.GroupName));
+                    //UpdateItemsForGroup(existingItem.GroupName);
+                }
+                else
+                {
+                    // Добавляем новый элемент в коллекцию
+                    PriceChangeMessages.Add(trackedTickerInfo);
+                }
+            });
+        }
 
+        #endregion
 
-                                                        #region Инициализация источников данных
-                                                        // Инициализация источника данных для отображения (настройки)
-                                                        TickerGroups = new ObservableCollection<TickerGroup>();
+        private void UpdateItemsForGroup(string groupName)
+        {
+            // Создаем новую коллекцию с обновленными элементами
+            ObservableCollection<TrackedTickerInfo> updatedItems = new ObservableCollection<TrackedTickerInfo>();
 
-                                                            // Инициализация источника данных для отображения (информация по тикерам)
-                                                            PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>();
-                                                                #endregion
+            foreach (var item in PriceChangeMessages)
+            {
+                if (item.GroupName == groupName)
+                {
+                    // Клонируем элемент, чтобы создать новый экземпляр с обновленными значениями свойств
+                    TrackedTickerInfo updatedItem = new TrackedTickerInfo()
+                    {
+                        IsPositivePriceChange = item.IsPositivePriceChange,
+                        PriceChangePercentage = item.PriceChangePercentage,
+                        GroupName = item.GroupName,
+                        TickerName = item.TickerName, // Обновляем имя тикера
+                        EventTime = DateTime.Now // Обновляем время только для элементов текущей группы
+                    };
 
-                                                                #region Подписка на события
+                    // Добавляем обновленный элемент в новую коллекцию
+                    updatedItems.Add(updatedItem);
+                }
+                else
+                {
+                    // Для элементов других групп просто добавляем в новую коллекцию без изменений
+                    updatedItems.Add(item);
+                }
+            }
 
-                                                                #endregion
-
-                                                                #region Вызовы методов
-                                                                LoadTickerGroups();
-                                                                Initialize();
-                                                                //LoadSavedData();
-                                                                // AddTickerGroup();
-                                                                RunPriceMonitoring();
-                                                                #endregion
-                                                                }
-
-
-                                                                // Метод для запуска мониторинга цен для всех групп тикеров
-                                                                //private async void RunPriceMonitoring()
-                                                                //{
-                                                                //    foreach (var group in TickerGroups)
-                                                                //    {
-                                                                //        MonitorThread monitor = new(group, _client);
-                                                                //        monitor.PriceChangeSignal += MonitorThread_PriceChangeSignal;
-
-                                                                //        await monitor.StartMonitoringAsync();
-
-                                                                //        //Thread.Sleep(10000);
-                                                                //        //await MonitorTickerGroup(group);
-
-                                                                //    }
-                                                                //}
-
-                                                                private async Task RunPriceMonitoring()
-                                                                {
-                                                                List<Task> monitorTasks = new List<Task>();
-
-                                                                        foreach (var group in TickerGroups)
-                                                                        {
-var monitorTask = Task.Run(async () =>
-                                                                            {
-                                                                            while (true)
-                                                                            {
-                                                                            MonitorThread monitor = new MonitorThread(group, _client);
-                                                                            monitor.PriceChangeSignal += MonitorThread_PriceChangeSignal;
-                                                                            await monitor.StartMonitoringAsync();
-
-                                                                            int delayMilliseconds = group.Interval * 60 * 1000; // Преобразование минут в миллисекунды
-                                                                            await Task.Delay(delayMilliseconds);
-                                                                            }
-                                                                            });
-
-                                                                            monitorTasks.Add(monitorTask);
-                                                                            }
-
-                                                                            await Task.WhenAll(monitorTasks);
-                                                                            }
+            // Заменяем коллекцию PriceChangeMessages на новую коллекцию с обновленными элементами
+            PriceChangeMessages = updatedItems;
+        }
 
 
-                                                                            #region Подписчики на события
-                                                                            private void MonitorThread_PriceChangeSignal(TrackedTickerInfo trackedTickerInfo)
-                                                                            {
-Application.Current.Dispatcher.Invoke(() =>
-                                                                                {
-                                                                                // Проверяем, существует ли элемент с таким же именем тикера в коллекции
-var existingItem = PriceChangeMessages.FirstOrDefault(item => item.TickerName == trackedTickerInfo.TickerName);
+        #region Методы
+        // Метод инициализации клиента и некоторых методов при старте программы
+        private async Task Initialize()
+        {
+            _client = await Creaters.CreateClientAsync();
+            //await LoadTickerPricesAsync();
+        }
 
-                                                                                    if (existingItem != null)
-                                                                                    {
-                                                                                    // Обновляем существующий элемент новыми данными
-                                                                                    existingItem.IsPositivePriceChange = trackedTickerInfo.IsPositivePriceChange;
-                                                                                    existingItem.PriceChangePercentage = trackedTickerInfo.PriceChangePercentage;
-                                                                                    existingItem.GroupName = trackedTickerInfo.GroupName;
-                                                                                    existingItem.EventTime = DateTime.Now;
+        // Метод добавления группы тикеров во View (отображение)
+        public void AddTickerGroup()
+        {
+            //_tickerPriceStorage = new TickerPriceStorage();
 
-                                                                                    // Сортировка коллекции по имени группы, и обновление для view
-                                                                                    PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>(PriceChangeMessages
-.OrderBy(item => item.GroupName));
-                                                                                            //UpdateItemsForGroup(existingItem.GroupName);
-                                                                                            }
-                                                                                            else
-                                                                                            {
-                                                                                            // Добавляем новый элемент в коллекцию
-                                                                                            PriceChangeMessages.Add(trackedTickerInfo);
-                                                                                            }
-                                                                                            });
-                                                                                            }
+            TickerGroup newGroup = new();
 
-                                                                                            #endregion
+            TickerGroups.Add(newGroup);
+        }
 
-                                                                                            private void UpdateItemsForGroup(string groupName)
-                                                                                            {
-                                                                                            // Создаем новую коллекцию с обновленными элементами
-                                                                                            ObservableCollection<TrackedTickerInfo> updatedItems = new ObservableCollection<TrackedTickerInfo>();
+        // Метод сохранения данных полученных из текстовых полей View (главного окна) от пользователя
+        public void SaveDataToJson()
+        {
+            // Сериализация TickerGroups в JSON
+            string jsonData = JsonConvert.SerializeObject(TickerGroups);
 
-                                                                                                    foreach (var item in PriceChangeMessages)
-                                                                                                    {
-                                                                                                    if (item.GroupName == groupName)
-                                                                                                    {
-                                                                                                    // Клонируем элемент, чтобы создать новый экземпляр с обновленными значениями свойств
-                                                                                                    TrackedTickerInfo updatedItem = new TrackedTickerInfo()
-                                                                                                    {
-                                                                                                    IsPositivePriceChange = item.IsPositivePriceChange,
-                                                                                                    PriceChangePercentage = item.PriceChangePercentage,
-                                                                                                    GroupName = item.GroupName,
-                                                                                                    TickerName = item.TickerName, // Обновляем имя тикера
-                                                                                                    EventTime = DateTime.Now // Обновляем время только для элементов текущей группы
-                                                                                                    };
+            // Получение пути к файлу в корне программы
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.json");
 
-                                                                                                    // Добавляем обновленный элемент в новую коллекцию
-                                                                                                    updatedItems.Add(updatedItem);
-                                                                                                    }
-                                                                                                    else
-                                                                                                    {
-                                                                                                    // Для элементов других групп просто добавляем в новую коллекцию без изменений
-                                                                                                    updatedItems.Add(item);
-                                                                                                    }
-                                                                                                    }
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    // Создание нового файла, если он не существует
+                    File.Create(filePath).Close();
+                }
 
-                                                                                                    // Заменяем коллекцию PriceChangeMessages на новую коллекцию с обновленными элементами
-                                                                                                    PriceChangeMessages = updatedItems;
-                                                                                                    }
+                // Запись JSON данных в файл
+                File.WriteAllText(filePath, jsonData);
+
+                MessageBox.Show("Данные сохранены в JSON файл.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось записать данные в файл data.json. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Метод загрузки данных в источник данных для отображения во View (главного окна)
+        public void LoadTickerGroups()
+        {
+            string filePath = "data.json";
+
+            if (File.Exists(filePath))
+            {
+                string json = File.ReadAllText(filePath);
+
+                try
+                {
+                    List<TickerGroup> groups = JsonConvert.DeserializeObject<List<TickerGroup>>(json);
+                    TickerGroups = new ObservableCollection<TickerGroup>(groups);
+                }
+                catch (Exception ex)
+                {
+                    //MessageBox.Show($"Не удалось загрузить данные из файла {filePath}. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                //MessageBox.Show($"Файл {filePath} не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Сохранение пути к Chrome и токен
+        private void SaveSettings()
+        {
+            // Получите значения из свойств вашей модели представления (SettingsModel)
+            string tinkoffToken = SettingsModel.TinkoffToken;
+            string chromeLocation = SettingsModel.ChromeLocation;
+
+            // Выполните сохранение данных в JSON
+
+            // Пример сохранения данных в JSON
+            JObject data = new JObject();
+            data["TinkoffToken"] = tinkoffToken;
+            data["ChromeLocation"] = chromeLocation;
+
+            string jsonData = data.ToString();
+            string filePath = "settings.json";
+
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    // Если файл не существует, создайте новый файл
+                    using (StreamWriter file = File.CreateText(filePath))
+                    {
+                        file.Write(jsonData);
+                    }
+                }
+                else
+                {
+                    // Если файл существует, перезапишите его содержимое
+                    File.WriteAllText(filePath, jsonData);
+                }
+
+                MessageBox.Show("Данные записались");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении данных: {ex.Message}");
+            }
+        }
 
 
-
-                                                                                                    #region Методы
-                                                                                                    // Метод инициализации клиента и некоторых методов при старте программы
-                                                                                                    private async Task Initialize()
-                                                                                                    {
-                                                                                                    _client = await Creaters.CreateClientAsync();
-                                                                                                    //await LoadTickerPricesAsync();
-                                                                                                    }
-
-                                                                                                    // Метод добавления группы тикеров во View (отображение)
-                                                                                                    public void AddTickerGroup()
-                                                                                                    {
-                                                                                                    //_tickerPriceStorage = new TickerPriceStorage();
-
-                                                                                                    TickerGroup newGroup = new();
-
-                                                                                                    TickerGroups.Add(newGroup);
-                                                                                                    }
-
-                                                                                                    // Метод сохранения данных полученных из текстовых полей View (главного окна) от пользователя
-                                                                                                    public void SaveDataToJson()
-                                                                                                    {
-                                                                                                    // Сериализация TickerGroups в JSON
-                                                                                                    string jsonData = JsonConvert.SerializeObject(TickerGroups);
-
-                                                                                                    // Получение пути к файлу в корне программы
-                                                                                                    string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.json");
-
-                                                                                                    try
-                                                                                                    {
-                                                                                                    if (!File.Exists(filePath))
-                                                                                                    {
-                                                                                                    // Создание нового файла, если он не существует
-                                                                                                    File.Create(filePath).Close();
-                                                                                                    }
-
-                                                                                                    // Запись JSON данных в файл
-                                                                                                    File.WriteAllText(filePath, jsonData);
-
-                                                                                                    MessageBox.Show("Данные сохранены в JSON файл.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                                                                                                    }
-                                                                                                    catch (Exception ex)
-                                                                                                    {
-                                                                                                    MessageBox.Show($"Не удалось записать данные в файл data.json. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                                                                                                    }
-                                                                                                    }
-
-                                                                                                    // Метод загрузки данных в источник данных для отображения во View (главного окна)
-                                                                                                    public void LoadTickerGroups()
-                                                                                                    {
-                                                                                                    string filePath = "data.json";
-
-                                                                                                    if (File.Exists(filePath))
-                                                                                                    {
-                                                                                                    string json = File.ReadAllText(filePath);
-
-                                                                                                    try
-                                                                                                    {
-                                                                                                    List<TickerGroup> groups = JsonConvert.DeserializeObject<List<TickerGroup>>(json);
-                                                                                                                TickerGroups = new ObservableCollection<TickerGroup>(groups);
-                                                                                                                    }
-                                                                                                                    catch (Exception ex)
-                                                                                                                    {
-                                                                                                                    //MessageBox.Show($"Не удалось загрузить данные из файла {filePath}. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                                                                                                                    }
-                                                                                                                    }
-                                                                                                                    else
-                                                                                                                    {
-                                                                                                                    //MessageBox.Show($"Файл {filePath} не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                                                                                                                    }
-                                                                                                                    }
-                                                                                                                    #endregion
-                                                                                                                    }
-                                                                                                                    }
+        #endregion
+    }
+}
