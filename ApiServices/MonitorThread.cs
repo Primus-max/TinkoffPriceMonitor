@@ -1,40 +1,26 @@
-﻿using AutoMapper;
-using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
-using Newtonsoft.Json;
+﻿using Google.Protobuf.WellKnownTypes;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
-using TinkoffPriceMonitor.ApiServices;
 using TinkoffPriceMonitor.Models;
-using TinkoffPriceMonitor.ViewModels.BaseView;
-using Candle = Tinkoff.InvestApi.V1.Candle;
 
 namespace TinkoffPriceMonitor.ApiServices
 {
     internal class MonitorThread
     {
         private TickerGroup Group { get; }
-        private InvestApiClient? _client;
-        public event Action<TrackedTickerInfo> PriceChangeSignal;
+        private InvestApiClient? _client = null!;
+
+        public event Action<TrackedTickerInfo> PriceChangeSignal = null!;
+
 
         public MonitorThread(TickerGroup group, InvestApiClient? client)
         {
             Group = group;
             _client = client;
-        }
-
-        public MonitorThread()
-        {
-
         }
 
         public async Task StartMonitoringAsync()
@@ -152,7 +138,6 @@ namespace TinkoffPriceMonitor.ApiServices
                 trackedTickerInfo.EventTime = DateTime.Now;
 
                 PriceChangeSignal?.Invoke(trackedTickerInfo);
-
                 string message = $"Сигнал: Цена поднялась на {roundedPercentage:F2}%.";
                 // Дальнейшая логика или вывод сообщения
             }
@@ -178,12 +163,13 @@ namespace TinkoffPriceMonitor.ApiServices
             }
         }
 
-
+        // Метод получения инструмента по тикеру
         private async Task<Share> GetShareByTicker(string ticker)
         {
             Share share = new();
             try
             {
+                // Получаю инструмент 
                 SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
                 share = sharesResponse?.Instruments?.FirstOrDefault(x => x.Ticker == ticker) ?? new Share();
             }
@@ -195,6 +181,7 @@ namespace TinkoffPriceMonitor.ApiServices
             return share;
         }
 
+        // Мотдель свечи
         public class Candle
         {
             public decimal Open { get; set; }

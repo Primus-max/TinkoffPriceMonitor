@@ -17,13 +17,15 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 {
     public class TinkoffTerminalManager
     {
-        private IWebDriver _driver;
+        private IWebDriver _driver = null!;
         private Uri _tinkoffTerminalUrl = new("https://www.tinkoff.ru/terminal/");
         private string? _tickerGroupName = "ALRS";
         private string? _orderAmount = string.Empty;
 
+
         public TinkoffTerminalManager(string tickerGroupName, string orderAmount)
         {
+
             _tickerGroupName = tickerGroupName;
             _orderAmount = orderAmount;
         }
@@ -37,7 +39,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         }
 
         // Основной метод по терминалу
-        public void OpenTerminal()
+        private void OpenTerminal()
         {
             if (_driver == null)
             {
@@ -107,8 +109,8 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         // Нажимаю на крестик для выбора группы тикеров
         private void OpenChooseTickerGroups()
         {
-            IWebElement popupElement;
-            IWebElement spanElement;
+            IWebElement popupElement = null!;
+            IWebElement spanElement = null!;
 
             try
             {
@@ -188,7 +190,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         }
 
         // Проверяю на странице кнопку Начать инвестировать и кликаю если есть
-        public void CheckBeginInvestButtonPresent()
+        private void CheckBeginInvestButtonPresent()
         {
             try
             {
@@ -202,7 +204,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         }
 
         //Ввожу сумму в поле
-        public void InputMoneyValue()
+        private void InputMoneyValue()
         {
             try
             {
@@ -253,7 +255,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         }
 
         // Закрываю драйвер
-        public void Close()
+        private void Close()
         {
             _driver?.Quit();
         }

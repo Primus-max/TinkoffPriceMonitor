@@ -370,6 +370,20 @@ namespace TinkoffPriceMonitor.ViewModels
             }
         }
 
+        // Метод вызовы терминала и вставка данных в полей
+        private void RunTinkoffMonitor()
+        {
+            // Полчение данных из выбранного тикера
+            string? selectedTickerGroupName = SelectedTickerGroup.GroupName;
+            string? selectedOrderAmount = SelectedTickerGroup.OrderAmountRubles.ToString();
+
+            // Конструктор с передачей параметров
+            TinkoffTerminalManager terminalManager = new TinkoffTerminalManager(selectedTickerGroupName, selectedOrderAmount);
+
+            // Запуск терминала
+            terminalManager.Start();
+        }
+
         #endregion
     }
 }
