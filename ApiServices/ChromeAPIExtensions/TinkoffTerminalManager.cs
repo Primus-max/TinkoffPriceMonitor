@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
+using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.DevTools.V112.Page;
 using OpenQA.Selenium.Support.UI;
+using TinkoffPriceMonitor.Models;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
@@ -19,6 +23,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         public void Start(string tickerGroupName)
         {
             //_tickerGroupName = tickerGroupName;
+
 
             StartChrome();
             ConnectToChromeDriver();
@@ -139,9 +144,10 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         // Запускаю Chrome
         private static void StartChrome()
         {
+            string? pathToChrome = GetSettings().ChromeLocation;
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                FileName = pathToChrome,
                 Arguments = "--remote-debugging-port=9222"
             };
 
@@ -168,6 +174,36 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         public void Close()
         {
             _driver?.Quit();
+        }
+
+        private static SettingsModel GetSettings()
+        {
+            string filePath = "settings.json";
+            SettingsModel settingsModel = new SettingsModel();
+
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    // Если файл существует, загрузите его содержимое
+                    string jsonData = File.ReadAllText(filePath);
+                    JObject data = JObject.Parse(jsonData);
+
+                    // Пример загрузки данных из JSON в модель представления
+                    settingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
+                    settingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
+                }
+                else
+                {
+                    MessageBox.Show("Файл настроек не найден. Создана новая модель представления");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
+            }
+
+            return settingsModel;
         }
     }
 }
