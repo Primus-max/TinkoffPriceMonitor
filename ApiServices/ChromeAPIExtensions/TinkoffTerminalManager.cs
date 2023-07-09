@@ -15,6 +15,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         private Uri _tinkoffTerminalUrl = new("https://www.tinkoff.ru/terminal/");
         private string? _tickerGroupName = "Группа 2";
 
+        // Метод, точка входа
         public void Start(string tickerGroupName)
         {
             //_tickerGroupName = tickerGroupName;
@@ -24,6 +25,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             OpenTerminal();
         }
 
+        // Основной метод по терминалу
         public void OpenTerminal()
         {
             if (_driver == null)
@@ -49,7 +51,6 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             // Выбираю группу тикеров
             ChooseTickerGroup();
         }
-
 
         // Открываю окно Виджеты
         private void OpenWidgetsWindow()

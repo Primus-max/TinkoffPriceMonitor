@@ -131,11 +131,29 @@
 
             <TabItem Header="Настройки">
                 <StackPanel Margin="10">
-                    <TextBlock Text="Токен Тинькофф:" FontWeight="Bold"/>
-                    <TextBlock Text="{Binding TinkoffToken}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                        <TextBlock
+                            Text="Токен:"
+                            FontWeight="Bold"
+                            VerticalAlignment="Center"/>
+                        <TextBox
+                            MinWidth="270"
+                            MaxWidth="450"
+                            Text=""
+                            Margin="10 0 0 0"/>
+                    </StackPanel>
 
-                    <TextBlock Text="Месторасположение Chrome:" FontWeight="Bold"/>
-                    <TextBlock Text="{Binding ChromeLocation}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Text="Chrome:"
+                            FontWeight="Bold"
+                            VerticalAlignment="Center"/>
+                        <TextBox
+                            MinWidth="270"
+                            MaxWidth="450"
+                            Text=""
+                            Margin="10 0 0 0"/>
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
 
