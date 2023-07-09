@@ -1,12 +1,16 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Tinkoff.InvestApi;
+using TinkoffPriceMonitor.Models;
 
 namespace TinkoffPriceMonitor.ApiServices
 {
@@ -14,12 +18,9 @@ namespace TinkoffPriceMonitor.ApiServices
     {
         public static Task<InvestApiClient> CreateClientAsync()
         {
-            string token = "t.xyqIxVciDDS4TtnLukX44Mf-PjiPIl8Wx_lk4xsaoCA23eyVbaSlMS5WZTJUeidfBrrqyE458_nxk9KuFb3S-A";
-            //var token = File.ReadAllText("token.txt");
-            //if (string.IsNullOrEmpty(token))
-            //{
-            //    return null;
-            //}
+            string? token = GetSettings().TinkoffToken;
+
+            //if (string.IsNullOrEmpty(token)) return Task.CompletedTask;;
 
             var appName = "tinkoff.invest-api-csharp-sdk";
             var callCredentials = CallCredentials.FromInterceptor((_, metadata) =>
@@ -67,5 +68,34 @@ namespace TinkoffPriceMonitor.ApiServices
             return Task.FromResult(client);
         }
 
+        private static SettingsModel GetSettings()
+        {
+            string filePath = "settings.json";
+            SettingsModel settingsModel = new SettingsModel();
+
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    // Если файл существует, загрузите его содержимое
+                    string jsonData = File.ReadAllText(filePath);
+                    JObject data = JObject.Parse(jsonData);
+
+                    // Пример загрузки данных из JSON в модель представления
+                    settingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
+                    settingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
+                }
+                else
+                {
+                    MessageBox.Show("Файл настроек не найден. Создана новая модель представления");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
+            }
+
+            return settingsModel;
+        }
     }
 }
