@@ -130,32 +130,30 @@
             </TabItem>
 
             <TabItem Header="Настройки">
-                <StackPanel Margin="10">
-                    <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
-                        <TextBlock
-                            Text="Токен:"
-                            FontWeight="Bold"
-                            VerticalAlignment="Center"/>
-                        <TextBox
-                            MinWidth="270"
-                            MaxWidth="450"
-                            Text=""
-                            Margin="10 0 0 0"/>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"  />
+                        <RowDefinition Height="50"  />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,52" Grid.RowSpan="2">
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Text="Токен:" FontWeight="Bold" VerticalAlignment="Bottom" />
+                            <TextBox MinWidth="290" MaxWidth="450" Text="" Margin="19,0,0,0" />
+                        </StackPanel>
+
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Text="Chrome:" FontWeight="Bold" VerticalAlignment="Bottom" />
+                            <TextBox MinWidth="290" MaxWidth="450" Text="" Margin="10 0 0 0" />
+                        </StackPanel>
                     </StackPanel>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            Text="Chrome:"
-                            FontWeight="Bold"
-                            VerticalAlignment="Center"/>
-                        <TextBox
-                            MinWidth="270"
-                            MaxWidth="450"
-                            Text=""
-                            Margin="10 0 0 0"/>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Center">
+                        <Button Content="Сохранить" Margin="0,0,30,0" />
                     </StackPanel>
-                </StackPanel>
+                </Grid>
             </TabItem>
+
 
         </TabControl>
     </Grid>
