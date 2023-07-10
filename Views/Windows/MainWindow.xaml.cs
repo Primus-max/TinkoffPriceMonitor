@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using TinkoffPriceMonitor.Models;
 using TinkoffPriceMonitor.ViewModels;
 
@@ -67,6 +68,11 @@ namespace TinkoffPriceMonitor.Views.Windows
                 MessageBox.Show($"Не удалось сохранить данные в файл data.json, " +
                 $"по причине {ex.Message}");
             }
+        }
+
+        private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var asdf = _viewModel.SelectedTickerGroup;
         }
 
     }

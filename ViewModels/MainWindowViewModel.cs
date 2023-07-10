@@ -35,7 +35,7 @@ namespace TinkoffPriceMonitor.ViewModels
         private ObservableCollection<TickerGroup> _tickerGroups = null!;
         private bool _IsPositivePriceChange = false;
         private SettingsModel _settingsModel = null!;
-        private TickerGroup _selectedTickerGroup = null!;
+        private TrackedTickerInfo _selectedTickerGroup = null!;
         //private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
         #endregion
 
@@ -64,7 +64,7 @@ namespace TinkoffPriceMonitor.ViewModels
             set => Set(ref _settingsModel, value);
         }
 
-        public TickerGroup SelectedTickerGroup
+        public TrackedTickerInfo SelectedTickerGroup
         {
             get => _selectedTickerGroup;
             set => Set(ref _selectedTickerGroup, value);
@@ -73,6 +73,8 @@ namespace TinkoffPriceMonitor.ViewModels
 
         #region комманды
         public ICommand SaveCommand { get; private set; }
+
+        public ICommand RunTerminalCommand { get; private set; }
 
         #endregion
 
@@ -100,9 +102,12 @@ namespace TinkoffPriceMonitor.ViewModels
             // Инициализация источника данных для отображения (информация по тикерам)
             PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>();
 
+            // Инициализация выбранного элемента
+            SelectedTickerGroup = new TrackedTickerInfo();
+
             // Инициализация комманды сохранения пути и токена
             SaveCommand = new RelayCommand(SaveSettings);
-
+            RunTerminalCommand = new RelayCommand(RunTinkoffMonitor);
             #endregion
 
             #region Подписка на события
@@ -370,18 +375,18 @@ namespace TinkoffPriceMonitor.ViewModels
             }
         }
 
-        // Метод вызовы терминала и вставка данных в полей
+        // Метод вызовы терминала и вставка данных в поля
         private void RunTinkoffMonitor()
         {
             // Полчение данных из выбранного тикера
             string? selectedTickerGroupName = SelectedTickerGroup.GroupName;
-            string? selectedOrderAmount = SelectedTickerGroup.OrderAmountRubles.ToString();
 
-            // Конструктор с передачей параметров
-            TinkoffTerminalManager terminalManager = new TinkoffTerminalManager(selectedTickerGroupName, selectedOrderAmount);
 
-            // Запуск терминала
-            terminalManager.Start();
+            //// Конструктор с передачей параметров
+            //TinkoffTerminalManager terminalManager = new(selectedTickerGroupName, selectedOrderAmount);
+
+            //// Запуск терминала
+            //terminalManager.Start();
         }
 
         #endregion

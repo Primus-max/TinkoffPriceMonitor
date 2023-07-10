@@ -134,3 +134,5 @@ E:\projects\TinkoffPriceMonitor\bin\Debug\net6.0-windows\runtimes\rhel-x64\nativ
 E:\projects\TinkoffPriceMonitor\bin\Debug\net6.0-windows\runtimes\win7-arm\native\libuv.dll
 E:\projects\TinkoffPriceMonitor\bin\Debug\net6.0-windows\runtimes\win7-x64\native\libuv.dll
 E:\projects\TinkoffPriceMonitor\bin\Debug\net6.0-windows\runtimes\win7-x86\native\libuv.dll
+E:\projects\TinkoffPriceMonitor\bin\Debug\net6.0-windows\Serilog.dll
+E:\projects\TinkoffPriceMonitor\bin\Debug\net6.0-windows\Serilog.Sinks.File.dll
