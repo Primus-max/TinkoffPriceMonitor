@@ -376,18 +376,30 @@ namespace TinkoffPriceMonitor.ViewModels
         }
 
         // Метод вызовы терминала и вставка данных в поля
-        private void RunTinkoffMonitor()
+        public void RunTinkoffMonitor()
         {
-            // Полчение данных из выбранного тикера
+
+            // Получение данных из выбранного тикера
             string? selectedTickerGroupName = SelectedTickerGroup.GroupName;
 
+            // Поиск элемента по имени группы
+            var selectedTicker = TickerGroups.FirstOrDefault(t => t.GroupName == selectedTickerGroupName);
 
-            //// Конструктор с передачей параметров
-            //TinkoffTerminalManager terminalManager = new(selectedTickerGroupName, selectedOrderAmount);
+            if (selectedTicker != null)
+            {
+                string? tickerGroupName = selectedTicker.GroupName;
+                string? orderAmount = selectedTicker.OrderAmountRubles.ToString();
 
-            //// Запуск терминала
-            //terminalManager.Start();
+                TinkoffTerminalManager terminalManager = new TinkoffTerminalManager(tickerGroupName, orderAmount);
+
+                terminalManager.Start();
+            }
+            else
+            {
+                // Элемент не найден
+            }
         }
+
 
         #endregion
     }

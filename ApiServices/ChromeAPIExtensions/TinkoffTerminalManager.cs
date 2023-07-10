@@ -277,6 +277,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                     // Пример загрузки данных из JSON в модель представления
                     settingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
                     settingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
+                    settingsModel.PinCode = data["PinCode"]?.ToString();
                 }
             }
             catch (Exception ex)

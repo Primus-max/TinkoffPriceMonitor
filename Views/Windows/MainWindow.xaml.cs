@@ -70,9 +70,10 @@ namespace TinkoffPriceMonitor.Views.Windows
             }
         }
 
+
         private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var asdf = _viewModel.SelectedTickerGroup;
+            _viewModel.RunTinkoffMonitor();
         }
 
     }
