@@ -30,7 +30,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         // Метод, точка входа
         public void Start()
         {
-            StartChrome();
+            //StartChrome();
             ConnectToChromeDriver();
             OpenTerminal();
         }
@@ -44,7 +44,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
 
             // Перехожу на страницу терминала
-            _driver.Navigate().GoToUrl(_tinkoffTerminalUrl);
+            //_driver.Navigate().GoToUrl(_tinkoffTerminalUrl);
 
             // Ожидаю полной загрузки DOM
             WaitForPageLoad();
@@ -54,11 +54,22 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 
             // Ожидание если страница грузится
             WaitWhileSpinner();
-            // Проверяю есть ли запроса пинкода
+            // Проверяю запрос пинкода
             CheckOrEnterPinCode();
 
             // Ожидание если страница грузится
             WaitWhileSpinner();
+
+            // Проверка открыто окно с заявкой или нет
+            bool IsOpenedWindow = IsOpenedWidgetsWindow();
+
+            if (IsOpenedWindow)
+            {
+                Thread.Sleep(2000);
+                // Вставляю сумму в поле
+                InputMoneyValue();
+            }
+
             // Открываю виджеты
             OpenWidgetsWindow();
 
@@ -80,14 +91,26 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             InputMoneyValue();
         }
 
+        // Проверяю открыто окно виджеты или нет
+        private bool IsOpenedWidgetsWindow()
+        {
+
+            try
+            {
+                IWebElement popupElement = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]//div[contains(text(), 'Заявка')]//ancestor::div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]"));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         // Открываю окно Виджеты
         private void OpenWidgetsWindow()
         {
             try
             {
-                // Ожидаю загрузки станицы
-                WaitForPageLoad();
-
                 // Открываем если не открыто
                 var element = _driver.FindElement(By.XPath("//button[contains(@class, 'pro-button pro-minimal pro-small')]/span[text()='Виджеты']"));
                 element.Click();
