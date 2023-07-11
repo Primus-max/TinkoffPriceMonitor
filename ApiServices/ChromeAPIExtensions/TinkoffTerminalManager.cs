@@ -1,17 +1,14 @@
-﻿using System;
-using System.Configuration;
+﻿using Newtonsoft.Json.Linq;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
+using Serilog;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows;
-using Newtonsoft.Json.Linq;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.DevTools.V112.Page;
-using OpenQA.Selenium.Support.UI;
-using Serilog;
 using TinkoffPriceMonitor.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 {
@@ -55,23 +52,30 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             // Проверяю наличие кнопки начать инвестировать
             CheckBeginInvestButtonPresent();
 
-            Thread.Sleep(5000);
+            // Ожидание если страница грузится
+            WaitWhileSpinner();
             // Проверяю есть ли запроса пинкода
             CheckOrEnterPinCode();
 
-            Thread.Sleep(10000);
+            // Ожидание если страница грузится
+            WaitWhileSpinner();
             // Открываю виджеты
             OpenWidgetsWindow();
 
+            // Ожидание если страница грузится
+            WaitWhileSpinner();
             // Открываю инструменты
             ClickToolsButton();
 
+            Thread.Sleep(2000);
             // Открываю список для выбора группы тикеров
             OpenChooseTickerGroups();
 
+            Thread.Sleep(2000);
             // Выбираю группу тикеров
             ChooseTickerGroup();
 
+            Thread.Sleep(2000);
             // Вставляю сумму в поле
             InputMoneyValue();
         }
@@ -247,6 +251,24 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
             }
             catch (Exception) { }
+        }
+
+        // Если есть спиннер (значит страница грузится) значит ждём
+        private void WaitWhileSpinner()
+        {
+            while (true)
+            {
+                try
+                {
+                    IWebElement spinner = _driver.FindElement(By.CssSelector("div.pro-spinner-head"));
+                    continue;
+                }
+                catch (Exception)
+                {
+                    break;
+                }
+
+            }
         }
 
         // Подключаю драйвер к запущенному браузеру

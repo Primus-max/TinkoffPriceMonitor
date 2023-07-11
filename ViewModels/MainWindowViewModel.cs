@@ -162,7 +162,7 @@ namespace TinkoffPriceMonitor.ViewModels
 
                     // Сортировка коллекции по имени группы, и обновление для view
                     PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>(PriceChangeMessages
-.OrderBy(item => item.GroupName));
+                                                .OrderBy(item => item.GroupName));
                     //UpdateItemsForGroup(existingItem.GroupName);
                 }
                 else
