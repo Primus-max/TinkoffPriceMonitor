@@ -251,7 +251,10 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             var options = new ChromeOptions();
             options.DebuggerAddress = "localhost:9222";
 
-            _driver = new ChromeDriver(options);
+            var service = ChromeDriverService.CreateDefaultService();
+            service.HideCommandPromptWindow = true; // Скрыть окно командной строки драйвера Chrome
+
+            _driver = new ChromeDriver(service, options);
         }
 
         // Закрываю драйвер
