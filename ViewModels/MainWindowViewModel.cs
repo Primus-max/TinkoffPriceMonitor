@@ -32,6 +32,8 @@ namespace TinkoffPriceMonitor.ViewModels
         #endregion
 
         #region Публичные свойства
+        public TinkoffTerminalManager TerminalManager { get; }
+
         public ObservableCollection<TrackedTickerInfo> PriceChangeMessages
         {
             get => _priceChangeMessages;
@@ -72,14 +74,10 @@ namespace TinkoffPriceMonitor.ViewModels
 
         public MainWindowViewModel()
         {
-            // тестовое подключение
-            TinkoffTerminalManager terminalmanager = new TinkoffTerminalManager("", "");
-            terminalmanager.Start();
-
-
-
-            //terminalmanager.Close();
-
+            // Создание экземпляра работы с терминалом
+            TerminalManager = new TinkoffTerminalManager();
+            // Сразу запускаю драйвер (всегда должыен быть запущен в фоне)
+            TerminalManager.ConnectToChromeDriver();
 
 
             #region Инициализация источников данных
@@ -363,12 +361,11 @@ namespace TinkoffPriceMonitor.ViewModels
 
             if (selectedTicker != null)
             {
-                string? tickerGroupName = "ALRS";
+                // Данные для передачи в параметры
+                string? tickerName = SelectedTickerGroup.TickerName;
                 string? orderAmount = selectedTicker.OrderAmountRubles.ToString();
 
-                TinkoffTerminalManager terminalManager = new TinkoffTerminalManager(tickerGroupName, orderAmount);
-
-                terminalManager.Start();
+                TerminalManager.Start(tickerName, orderAmount);
             }
             else
             {

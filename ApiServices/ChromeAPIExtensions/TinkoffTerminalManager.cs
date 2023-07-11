@@ -43,53 +43,99 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 return;
             }
 
-            // Перехожу на страницу терминала
-            //_driver.Navigate().GoToUrl(_tinkoffTerminalUrl);
+            //// Перехожу на страницу терминала
+            ////_driver.Navigate().GoToUrl(_tinkoffTerminalUrl);
 
-            // Ожидаю полной загрузки DOM
-            WaitForPageLoad();
+            //// Ожидаю полной загрузки DOM
+            //WaitForPageLoad();
 
-            // Проверяю наличие кнопки начать инвестировать
-            CheckBeginInvestButtonPresent();
+            //// Проверяю наличие кнопки начать инвестировать
+            //CheckBeginInvestButtonPresent();
 
-            // Ожидание если страница грузится
-            WaitWhileSpinner();
-            // Проверяю запрос пинкода
-            CheckOrEnterPinCode();
+            //// Ожидание если страница грузится
+            //WaitWhileSpinner();
+            //// Проверяю запрос пинкода
+            //CheckOrEnterPinCode();
 
-            // Ожидание если страница грузится
-            WaitWhileSpinner();
+            //// Ожидание если страница грузится
+            //WaitWhileSpinner();
 
-            // Проверка открыто окно с заявкой или нет
-            bool IsOpenedWindow = IsOpenedWidgetsWindow();
+            //// Проверка открыто окно с заявкой или нет
+            //bool IsOpenedWindow = IsOpenedWidgetsWindow();
 
-            if (IsOpenedWindow)
-            {
-                Thread.Sleep(2000);
-                // Вставляю сумму в поле
-                InputMoneyValue();
-            }
+            //if (IsOpenedWindow)
+            //{
+            //    Thread.Sleep(2000);
+            //    // Вставляю сумму в поле
+            //    InputMoneyValue();
+            //}
 
-            // Открываю виджеты
-            OpenWidgetsWindow();
+            //// Открываю виджеты
+            //OpenWidgetsWindow();
 
-            // Ожидание если страница грузится
-            WaitWhileSpinner();
-            // Открываю инструменты
-            ClickToolsButton();
+            //// Ожидание если страница грузится
+            //WaitWhileSpinner();
+            //// Открываю инструменты
+            //ClickToolsButton();
 
-            Thread.Sleep(2000);
-            // Открываю список для выбора группы тикеров
-            OpenChooseTickerGroups();
+            //Thread.Sleep(2000);
+            //// Открываю список для выбора группы тикеров
+            //OpenChooseTickerGroups();
 
-            Thread.Sleep(2000);
-            // Выбираю группу тикеров
-            ChooseTickerGroup();
+            //Thread.Sleep(2000);
+            //// Выбираю группу тикеров
+            //ChooseTickerGroup();
 
-            Thread.Sleep(2000);
+            OpenSearchTickerField();
+
+            FillAndSubmitSearchField();
+
             // Вставляю сумму в поле
             InputMoneyValue();
         }
+
+
+        private void FillAndSubmitSearchField()
+        {
+            try
+            {
+                IWebElement searchField = _driver.FindElement(By.CssSelector("input.src-containers-AssetSuggest-styles-search-7VDNc"));
+                searchField.Clear();
+                searchField.SendKeys("SBER");
+
+                Thread.Sleep(100);
+                // Нажатие клавиши Enter
+                searchField.SendKeys(Keys.Enter);
+            }
+            catch (NoSuchElementException)
+            {
+                // Обработка исключения или другие действия при необходимости
+            }
+            catch (Exception)
+            {
+                // Обработка общего исключения или другие действия при необходимости
+            }
+        }
+
+
+
+        private void OpenSearchTickerField()
+        {
+            try
+            {
+                IWebElement searchButton = _driver.FindElement(By.XPath("//div[contains(text(), 'Заявка')]/ancestor::div[@class='src-core-components-WidgetBody-WidgetBody-search-HPv1B']//button"));
+                searchButton.Click();
+            }
+            catch (Exception)
+            {
+                // Обработка общего исключения или другие действия при необходимости
+            }
+        }
+
+
+
+
+
 
         // Проверяю открыто окно виджеты или нет
         private bool IsOpenedWidgetsWindow()
@@ -241,6 +287,9 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             {
                 // Получаю элемент для ввода суммы
                 IWebElement inputElement = _driver.FindElement(By.CssSelector("input[type='text'][precision='0'][min='0'][max='1000000000'][tabindex='1'][locale='ru'][class='pro-input'][data-qa-tag='input']"));
+
+                //Отчищаю поле
+                inputElement.Clear();
 
                 // Ввожу сумму
                 inputElement.SendKeys("10000");
