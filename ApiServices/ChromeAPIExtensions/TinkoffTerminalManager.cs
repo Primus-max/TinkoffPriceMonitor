@@ -15,23 +15,24 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
     public class TinkoffTerminalManager
     {
         private IWebDriver _driver = null!;
-        private Uri _tinkoffTerminalUrl = new("https://www.tinkoff.ru/terminal/");
-        private string? _tickerGroupName = "ALRS";
+        //private Uri _tinkoffTerminalUrl = new("https://www.tinkoff.ru/terminal/");
+        private string? _tickerName = "ALRS";
         private string? _orderAmount = string.Empty;
 
 
-        public TinkoffTerminalManager(string tickerGroupName, string orderAmount)
+        public TinkoffTerminalManager()
         {
 
-            _tickerGroupName = tickerGroupName;
-            _orderAmount = orderAmount;
         }
 
         // Метод, точка входа
-        public void Start()
+        public void Start(string tickerName, string orderAmount)
         {
+            _tickerName = tickerName;
+            _orderAmount = orderAmount;
+
             //StartChrome();
-            ConnectToChromeDriver();
+            //ConnectToChromeDriver();
             OpenTerminal();
         }
 
@@ -43,6 +44,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 return;
             }
 
+            #region ВЫЗОВ МЕТОДОВ ДЛЯ ПОЛНОГО ЦИКЛА ТЕРМИНАЛА
             //// Перехожу на страницу терминала
             ////_driver.Navigate().GoToUrl(_tinkoffTerminalUrl);
 
@@ -84,10 +86,13 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 
             //Thread.Sleep(2000);
             //// Выбираю группу тикеров
-            //ChooseTickerGroup();
+            //ChooseTickerGroup(); 
+            #endregion
 
+            // Открываю строку для вставки тикера
             OpenSearchTickerField();
 
+            // Вставляю тикер в поле
             FillAndSubmitSearchField();
 
             // Вставляю сумму в поле
@@ -95,30 +100,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         }
 
 
-        private void FillAndSubmitSearchField()
-        {
-            try
-            {
-                IWebElement searchField = _driver.FindElement(By.CssSelector("input.src-containers-AssetSuggest-styles-search-7VDNc"));
-                searchField.Clear();
-                searchField.SendKeys("SBER");
-
-                Thread.Sleep(100);
-                // Нажатие клавиши Enter
-                searchField.SendKeys(Keys.Enter);
-            }
-            catch (NoSuchElementException)
-            {
-                // Обработка исключения или другие действия при необходимости
-            }
-            catch (Exception)
-            {
-                // Обработка общего исключения или другие действия при необходимости
-            }
-        }
-
-
-
+        //Открываю поле для ввода тикера
         private void OpenSearchTickerField()
         {
             try
@@ -126,158 +108,29 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 IWebElement searchButton = _driver.FindElement(By.XPath("//div[contains(text(), 'Заявка')]/ancestor::div[@class='src-core-components-WidgetBody-WidgetBody-search-HPv1B']//button"));
                 searchButton.Click();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Обработка общего исключения или другие действия при необходимости
+                Log.Error($"Произошла ошибка в методе OpenSearchTickerField: {ex.Message}");
             }
         }
 
-
-
-
-
-
-        // Проверяю открыто окно виджеты или нет
-        private bool IsOpenedWidgetsWindow()
-        {
-
-            try
-            {
-                IWebElement popupElement = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]//div[contains(text(), 'Заявка')]//ancestor::div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]"));
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        // Открываю окно Виджеты
-        private void OpenWidgetsWindow()
+        // Вставляю тикер в поле и перехожу на него
+        private void FillAndSubmitSearchField()
         {
             try
             {
-                // Открываем если не открыто
-                var element = _driver.FindElement(By.XPath("//button[contains(@class, 'pro-button pro-minimal pro-small')]/span[text()='Виджеты']"));
-                element.Click();
+                IWebElement searchField = _driver.FindElement(By.CssSelector("input.src-containers-AssetSuggest-styles-search-7VDNc"));
+                searchField.Clear();
+                searchField.SendKeys(_tickerName);
+
+                Thread.Sleep(100);
+                // Нажатие клавиши Enter
+                searchField.SendKeys(Keys.Enter);
             }
             catch (Exception ex)
             {
-                Log.Error($"В методе OpenWidgetsWindow произошла ошибка: {ex.Message}");
-                return;
+                Log.Error($"Произошла ошибка в методе FillAndSubmitSearchField: {ex.Message}");
             }
-
-        }
-
-        // Нажмаю на кнопку Инструменты
-        private void ClickToolsButton()
-        {
-            try
-            {
-                var element = _driver.FindElement(By.XPath("//li[contains(@class, 'pro-menu-item-wrapper')]//div[@class='pro-text-overflow-ellipsis pro-fill' and text()='Заявка']"));
-                element.Click();
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"В методе ClickToolsButton произошла ошибка: {ex.Message}");
-                return;
-            }
-        }
-
-        // Нажимаю на крестик для выбора группы тикеров
-        private void OpenChooseTickerGroups()
-        {
-            IWebElement popupElement = null!;
-            IWebElement spanElement = null!;
-
-            try
-            {
-                popupElement = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]//div[contains(text(), 'Заявка')]//ancestor::div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]"));
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"В методе OpenChooseTickerGroups произошла ошибка: {ex.Message}");
-                return;
-            }
-
-            try
-            {
-                spanElement = popupElement.FindElement(By.CssSelector("span.pro-popover-target"));
-
-                // Выполнение клика на элементе
-                spanElement.Click();
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"В методе OpenChooseTickerGroups произошла ошибка: {ex.Message}");
-                return;
-            }
-        }
-
-        // Выбираю группу тикеров
-        private void ChooseTickerGroup()
-        {
-            try
-            {
-                var list = _driver.FindElement(By.CssSelector("ul.pro-menu.pro-small.src-core-components-GroupMenu-GroupMenu-popover-CHTjJ.kvt-menu-load"));
-                var listItem = list.FindElements(By.CssSelector("li.pro-menu-item-wrapper"));
-
-                foreach (var item in listItem)
-                {
-                    var elementText = item.FindElement(By.CssSelector("div.pro-text-overflow-ellipsis.pro-fill")).Text;
-                    if (elementText.Equals(_tickerGroupName))
-                    {
-                        item.Click();
-                        break;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"В методе ChooseTickerGroup произошла ошибка: {ex.Message}");
-                return;
-            }
-        }
-
-        // Проверяю если есть на странице пин код,, если то ввожу
-        private void CheckOrEnterPinCode()
-        {
-            string? _pinCode = GetSettings().PinCode;
-
-            try
-            {
-                // Ожидаю загрузки станицы
-                WaitForPageLoad();
-
-                // Поиск элемента с id "pinCodeField"
-                IWebElement pinCodeField = _driver.FindElement(By.Id("pinCodeField"));
-
-                // Получение всех полей ввода пин-кода внутри div
-                var inputFields = pinCodeField.FindElements(By.TagName("input"));
-
-                // Ввод пин-кода в каждое поле
-                for (int i = 0; i < inputFields.Count; i++)
-                {
-                    inputFields[i].SendKeys(_pinCode[i].ToString());
-
-                    Thread.Sleep(500);
-                }
-            }
-            catch (Exception) { }
-        }
-
-        // Проверяю на странице кнопку Начать инвестировать и кликаю если есть
-        private void CheckBeginInvestButtonPresent()
-        {
-            try
-            {
-                // Ожидаю загрузки станицы
-                WaitForPageLoad();
-
-                IWebElement beginInvestButton = _driver.FindElement(By.ClassName("abou--HIZq.ibou--HIZq.cbou--HIZq"));
-                beginInvestButton.Click();
-            }
-            catch (Exception) { }
         }
 
         //Ввожу сумму в поле
@@ -292,7 +145,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 inputElement.Clear();
 
                 // Ввожу сумму
-                inputElement.SendKeys("10000");
+                inputElement.SendKeys(_orderAmount);
             }
             catch (Exception ex)
             {
@@ -301,50 +154,8 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             }
         }
 
-        // Запускаю Chrome
-        private static void StartChrome()
-        {
-            string? pathToChrome = GetSettings().ChromeLocation;
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = pathToChrome,
-                Arguments = "--remote-debugging-port=9222"
-            };
-
-            Process.Start(startInfo); // Запускаю браузер            
-        }
-
-        // Метод ожидания загузки DOM
-        private void WaitForPageLoad()
-        {
-            try
-            {
-                WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
-                wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
-            }
-            catch (Exception) { }
-        }
-
-        // Если есть спиннер (значит страница грузится) значит ждём
-        private void WaitWhileSpinner()
-        {
-            while (true)
-            {
-                try
-                {
-                    IWebElement spinner = _driver.FindElement(By.CssSelector("div.pro-spinner-head"));
-                    continue;
-                }
-                catch (Exception)
-                {
-                    break;
-                }
-
-            }
-        }
-
         // Подключаю драйвер к запущенному браузеру
-        private void ConnectToChromeDriver()
+        public void ConnectToChromeDriver()
         {
             var options = new ChromeOptions();
             options.DebuggerAddress = "localhost:9222";
@@ -355,38 +166,226 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             _driver = new ChromeDriver(service, options);
         }
 
-        // Закрываю драйвер
-        private void Close()
-        {
-            _driver?.Quit();
-        }
+        #region МЕТОДЫ ДЛЯ ПОЛНОГО ЦИКЛА (если ничего не открыто)
+        // Проверяю открыто окно виджеты или нет
+        //private bool IsOpenedWidgetsWindow()
+        //{
 
-        // Загружаю путь к chrome
-        private static SettingsModel GetSettings()
-        {
-            string filePath = "settings.json";
-            SettingsModel settingsModel = new SettingsModel();
+        //    try
+        //    {
+        //        IWebElement popupElement = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]//div[contains(text(), 'Заявка')]//ancestor::div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]"));
+        //        return true;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return false;
+        //    }
+        //}
 
-            try
-            {
-                if (File.Exists(filePath))
-                {
-                    // Если файл существует, загрузите его содержимое
-                    string jsonData = File.ReadAllText(filePath);
-                    JObject data = JObject.Parse(jsonData);
+        //// Открываю окно Виджеты
+        //private void OpenWidgetsWindow()
+        //{
+        //    try
+        //    {
+        //        // Открываем если не открыто
+        //        var element = _driver.FindElement(By.XPath("//button[contains(@class, 'pro-button pro-minimal pro-small')]/span[text()='Виджеты']"));
+        //        element.Click();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error($"В методе OpenWidgetsWindow произошла ошибка: {ex.Message}");
+        //        return;
+        //    }
 
-                    // Пример загрузки данных из JSON в модель представления
-                    settingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
-                    settingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
-                    settingsModel.PinCode = data["PinCode"]?.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
-            }
+        //}
 
-            return settingsModel;
-        }
+        //// Нажмаю на кнопку Инструменты
+        //private void ClickToolsButton()
+        //{
+        //    try
+        //    {
+        //        var element = _driver.FindElement(By.XPath("//li[contains(@class, 'pro-menu-item-wrapper')]//div[@class='pro-text-overflow-ellipsis pro-fill' and text()='Заявка']"));
+        //        element.Click();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error($"В методе ClickToolsButton произошла ошибка: {ex.Message}");
+        //        return;
+        //    }
+        //}
+
+        //// Нажимаю на крестик для выбора группы тикеров
+        //private void OpenChooseTickerGroups()
+        //{
+        //    IWebElement popupElement = null!;
+        //    IWebElement spanElement = null!;
+
+        //    try
+        //    {
+        //        popupElement = _driver.FindElement(By.XPath("//div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]//div[contains(text(), 'Заявка')]//ancestor::div[contains(@class, 'src-core-components-WidgetBody-WidgetBody-widgetBody-QGsdH')]"));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error($"В методе OpenChooseTickerGroups произошла ошибка: {ex.Message}");
+        //        return;
+        //    }
+
+        //    try
+        //    {
+        //        spanElement = popupElement.FindElement(By.CssSelector("span.pro-popover-target"));
+
+        //        // Выполнение клика на элементе
+        //        spanElement.Click();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error($"В методе OpenChooseTickerGroups произошла ошибка: {ex.Message}");
+        //        return;
+        //    }
+        //}
+
+        //// Выбираю группу тикеров
+        //private void ChooseTickerGroup()
+        //{
+        //    try
+        //    {
+        //        var list = _driver.FindElement(By.CssSelector("ul.pro-menu.pro-small.src-core-components-GroupMenu-GroupMenu-popover-CHTjJ.kvt-menu-load"));
+        //        var listItem = list.FindElements(By.CssSelector("li.pro-menu-item-wrapper"));
+
+        //        foreach (var item in listItem)
+        //        {
+        //            var elementText = item.FindElement(By.CssSelector("div.pro-text-overflow-ellipsis.pro-fill")).Text;
+        //            if (elementText.Equals(_tickerGroupName))
+        //            {
+        //                item.Click();
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error($"В методе ChooseTickerGroup произошла ошибка: {ex.Message}");
+        //        return;
+        //    }
+        //}
+
+        //// Проверяю если есть на странице пин код,, если то ввожу
+        //private void CheckOrEnterPinCode()
+        //{
+        //    string? _pinCode = GetSettings().PinCode;
+
+        //    try
+        //    {
+        //        // Ожидаю загрузки станицы
+        //        WaitForPageLoad();
+
+        //        // Поиск элемента с id "pinCodeField"
+        //        IWebElement pinCodeField = _driver.FindElement(By.Id("pinCodeField"));
+
+        //        // Получение всех полей ввода пин-кода внутри div
+        //        var inputFields = pinCodeField.FindElements(By.TagName("input"));
+
+        //        // Ввод пин-кода в каждое поле
+        //        for (int i = 0; i < inputFields.Count; i++)
+        //        {
+        //            inputFields[i].SendKeys(_pinCode[i].ToString());
+
+        //            Thread.Sleep(500);
+        //        }
+        //    }
+        //    catch (Exception) { }
+        //}
+
+        //// Проверяю на странице кнопку Начать инвестировать и кликаю если есть
+        //private void CheckBeginInvestButtonPresent()
+        //{
+        //    try
+        //    {
+        //        // Ожидаю загрузки станицы
+        //        WaitForPageLoad();
+
+        //        IWebElement beginInvestButton = _driver.FindElement(By.ClassName("abou--HIZq.ibou--HIZq.cbou--HIZq"));
+        //        beginInvestButton.Click();
+        //    }
+        //    catch (Exception) { }
+        //}
+
+        //// Запускаю Chrome
+        //private static void StartChrome()
+        //{
+        //    string? pathToChrome = GetSettings().ChromeLocation;
+        //    ProcessStartInfo startInfo = new ProcessStartInfo
+        //    {
+        //        FileName = pathToChrome,
+        //        Arguments = "--remote-debugging-port=9222"
+        //    };
+
+        //    Process.Start(startInfo); // Запускаю браузер            
+        //}
+
+        //// Если есть спиннер (значит страница грузится) значит ждём
+        //private void WaitWhileSpinner()
+        //{
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            IWebElement spinner = _driver.FindElement(By.CssSelector("div.pro-spinner-head"));
+        //            continue;
+        //        }
+        //        catch (Exception)
+        //        {
+        //            break;
+        //        }
+
+        //    }
+        //}
+
+        //// Метод ожидания загузки DOM
+        //private void WaitForPageLoad()
+        //{
+        //    try
+        //    {
+        //        WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
+        //        wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
+        //    }
+        //    catch (Exception) { }
+        //}
+
+        //// Закрываю драйвер
+        //private void Close()
+        //{
+        //    _driver?.Quit();
+        //}
+
+        //// Загружаю путь к chrome
+        //private static SettingsModel GetSettings()
+        //{
+        //    string filePath = "settings.json";
+        //    SettingsModel settingsModel = new SettingsModel();
+
+        //    try
+        //    {
+        //        if (File.Exists(filePath))
+        //        {
+        //            // Если файл существует, загрузите его содержимое
+        //            string jsonData = File.ReadAllText(filePath);
+        //            JObject data = JObject.Parse(jsonData);
+
+        //            // Пример загрузки данных из JSON в модель представления
+        //            settingsModel.TinkoffToken = data["TinkoffToken"]?.ToString();
+        //            settingsModel.ChromeLocation = data["ChromeLocation"]?.ToString();
+        //            settingsModel.PinCode = data["PinCode"]?.ToString();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
+        //    }
+
+        //    return settingsModel;
+        //}
+        #endregion
+
     }
 }

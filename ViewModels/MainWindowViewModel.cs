@@ -32,7 +32,7 @@ namespace TinkoffPriceMonitor.ViewModels
         #endregion
 
         #region Публичные свойства
-        public TinkoffTerminalManager TerminalManager { get; }
+        public TinkoffTerminalManager TerminalManager { get; private set; }
 
         public ObservableCollection<TrackedTickerInfo> PriceChangeMessages
         {
@@ -74,15 +74,17 @@ namespace TinkoffPriceMonitor.ViewModels
 
         public MainWindowViewModel()
         {
+            #region Инициализация терминала и запуск драйвера
             // Создание экземпляра работы с терминалом
             TerminalManager = new TinkoffTerminalManager();
             // Сразу запускаю драйвер (всегда должыен быть запущен в фоне)
             TerminalManager.ConnectToChromeDriver();
-
+            #endregion
 
             #region Инициализация источников данных
-
+            // Инициализация логера
             LoggerInitializer.InitializeLogger();
+
             // Инициализация источника данных для токена и адреса хрома
             SettingsModel = new SettingsModel();
 
@@ -114,7 +116,6 @@ namespace TinkoffPriceMonitor.ViewModels
             #endregion
         }
 
-
         // Метод мониторинга тикеров
         private async Task RunPriceMonitoring()
         {
@@ -140,72 +141,6 @@ namespace TinkoffPriceMonitor.ViewModels
 
             await Task.WhenAll(monitorTasks);
         }
-
-
-        #region Подписчики на события
-        private void MonitorThread_PriceChangeSignal(TrackedTickerInfo trackedTickerInfo)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                // Проверяем, существует ли элемент с таким же именем тикера в коллекции
-                var existingItem = PriceChangeMessages.FirstOrDefault(item => item.TickerName == trackedTickerInfo.TickerName);
-
-                if (existingItem != null)
-                {
-                    // Обновляем существующий элемент новыми данными
-                    existingItem.IsPositivePriceChange = trackedTickerInfo.IsPositivePriceChange;
-                    existingItem.PriceChangePercentage = trackedTickerInfo.PriceChangePercentage;
-                    existingItem.GroupName = trackedTickerInfo.GroupName;
-                    existingItem.EventTime = DateTime.Now;
-
-                    // Сортировка коллекции по имени группы, и обновление для view
-                    PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>(PriceChangeMessages
-                                                .OrderBy(item => item.GroupName));
-                    //UpdateItemsForGroup(existingItem.GroupName);
-                }
-                else
-                {
-                    // Добавляем новый элемент в коллекцию
-                    PriceChangeMessages.Add(trackedTickerInfo);
-                }
-            });
-        }
-
-        #endregion
-
-        private void UpdateItemsForGroup(string groupName)
-        {
-            // Создаем новую коллекцию с обновленными элементами
-            ObservableCollection<TrackedTickerInfo> updatedItems = new ObservableCollection<TrackedTickerInfo>();
-
-            foreach (var item in PriceChangeMessages)
-            {
-                if (item.GroupName == groupName)
-                {
-                    // Клонируем элемент, чтобы создать новый экземпляр с обновленными значениями свойств
-                    TrackedTickerInfo updatedItem = new TrackedTickerInfo()
-                    {
-                        IsPositivePriceChange = item.IsPositivePriceChange,
-                        PriceChangePercentage = item.PriceChangePercentage,
-                        GroupName = item.GroupName,
-                        TickerName = item.TickerName, // Обновляем имя тикера
-                        EventTime = DateTime.Now // Обновляем время только для элементов текущей группы
-                    };
-
-                    // Добавляем обновленный элемент в новую коллекцию
-                    updatedItems.Add(updatedItem);
-                }
-                else
-                {
-                    // Для элементов других групп просто добавляем в новую коллекцию без изменений
-                    updatedItems.Add(item);
-                }
-            }
-
-            // Заменяем коллекцию PriceChangeMessages на новую коллекцию с обновленными элементами
-            PriceChangeMessages = updatedItems;
-        }
-
 
         #region Методы
         // Метод инициализации клиента и некоторых методов при старте программы
@@ -374,5 +309,36 @@ namespace TinkoffPriceMonitor.ViewModels
         }
 
         #endregion
+
+        #region Подписчики на события
+        private void MonitorThread_PriceChangeSignal(TrackedTickerInfo trackedTickerInfo)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // Проверяем, существует ли элемент с таким же именем тикера в коллекции
+                var existingItem = PriceChangeMessages.FirstOrDefault(item => item.TickerName == trackedTickerInfo.TickerName);
+
+                if (existingItem != null)
+                {
+                    // Обновляем существующий элемент новыми данными
+                    existingItem.IsPositivePriceChange = trackedTickerInfo.IsPositivePriceChange;
+                    existingItem.PriceChangePercentage = trackedTickerInfo.PriceChangePercentage;
+                    existingItem.GroupName = trackedTickerInfo.GroupName;
+                    existingItem.EventTime = DateTime.Now;
+
+                    // Сортировка коллекции по имени группы, и обновление для view
+                    PriceChangeMessages = new ObservableCollection<TrackedTickerInfo>(PriceChangeMessages
+                                                .OrderBy(item => item.GroupName));
+                    //UpdateItemsForGroup(existingItem.GroupName);
+                }
+                else
+                {
+                    // Добавляем новый элемент в коллекцию
+                    PriceChangeMessages.Add(trackedTickerInfo);
+                }
+            });
+        }
+
+        #endregion        
     }
 }
