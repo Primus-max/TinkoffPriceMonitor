@@ -55,9 +55,11 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             // Проверяю наличие кнопки начать инвестировать
             CheckBeginInvestButtonPresent();
 
+            Thread.Sleep(5000);
             // Проверяю есть ли запроса пинкода
             CheckOrEnterPinCode();
 
+            Thread.Sleep(10000);
             // Открываю виджеты
             OpenWidgetsWindow();
 
@@ -79,6 +81,9 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         {
             try
             {
+                // Ожидаю загрузки станицы
+                WaitForPageLoad();
+
                 // Открываем если не открыто
                 var element = _driver.FindElement(By.XPath("//button[contains(@class, 'pro-button pro-minimal pro-small')]/span[text()='Виджеты']"));
                 element.Click();
@@ -168,6 +173,9 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 
             try
             {
+                // Ожидаю загрузки станицы
+                WaitForPageLoad();
+
                 // Поиск элемента с id "pinCodeField"
                 IWebElement pinCodeField = _driver.FindElement(By.Id("pinCodeField"));
 
@@ -181,10 +189,6 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 
                     Thread.Sleep(500);
                 }
-
-                // Ожидаю загрузки станицы
-                WaitForPageLoad();
-
             }
             catch (Exception) { }
         }
@@ -194,11 +198,11 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         {
             try
             {
-                IWebElement beginInvestButton = _driver.FindElement(By.ClassName("abou--HIZq.ibou--HIZq.cbou--HIZq"));
-                beginInvestButton.Click();
-
                 // Ожидаю загрузки станицы
                 WaitForPageLoad();
+
+                IWebElement beginInvestButton = _driver.FindElement(By.ClassName("abou--HIZq.ibou--HIZq.cbou--HIZq"));
+                beginInvestButton.Click();
             }
             catch (Exception) { }
         }
