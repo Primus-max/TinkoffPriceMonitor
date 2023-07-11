@@ -1,22 +1,16 @@
-﻿using AutoMapper;
-using GalaSoft.MvvmLight.Command;
-using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
+﻿using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OpenQA.Selenium;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Tinkoff.InvestApi;
-using Tinkoff.InvestApi.V1;
 using TinkoffPriceMonitor.ApiServices;
 using TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions;
 using TinkoffPriceMonitor.Logs;
@@ -30,13 +24,11 @@ namespace TinkoffPriceMonitor.ViewModels
     {
         #region Приватные свойства
         private InvestApiClient? _client = null;
-        private ObservableCollection<TrackedTickerInfo> _priceChangeMessages = null;
-        // private TickerPriceStorage _tickerPriceStorage;
+        private ObservableCollection<TrackedTickerInfo> _priceChangeMessages = null!;
         private ObservableCollection<TickerGroup> _tickerGroups = null!;
         private bool _IsPositivePriceChange = false;
         private SettingsModel _settingsModel = null!;
         private TrackedTickerInfo _selectedTickerGroup = null!;
-        //private ObservableCollection<TrackedTickerInfo> _priceChangeItems;
         #endregion
 
         #region Публичные свойства
@@ -124,22 +116,6 @@ namespace TinkoffPriceMonitor.ViewModels
             #endregion
         }
 
-
-        // Метод для запуска мониторинга цен для всех групп тикеров
-        //private async void RunPriceMonitoring()
-        //{
-        //    foreach (var group in TickerGroups)
-        //    {
-        //        MonitorThread monitor = new(group, _client);
-        //        monitor.PriceChangeSignal += MonitorThread_PriceChangeSignal;
-
-        //        await monitor.StartMonitoringAsync();
-
-        //        //Thread.Sleep(10000);
-        //        //await MonitorTickerGroup(group);
-
-        //    }
-        //}
 
         // Метод мониторинга тикеров
         private async Task RunPriceMonitoring()
@@ -295,7 +271,7 @@ namespace TinkoffPriceMonitor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show($"Не удалось загрузить данные из файла {filePath}. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Log.Error($"Не удалось загрузить данные из файла data.json: {ex.Message}");
                 }
             }
             else
@@ -387,7 +363,7 @@ namespace TinkoffPriceMonitor.ViewModels
 
             if (selectedTicker != null)
             {
-                string? tickerGroupName = selectedTicker.GroupName;
+                string? tickerGroupName = selectedTicker.WidgetGroupNumber.ToString();
                 string? orderAmount = selectedTicker.OrderAmountRubles.ToString();
 
                 TinkoffTerminalManager terminalManager = new TinkoffTerminalManager(tickerGroupName, orderAmount);
@@ -399,7 +375,6 @@ namespace TinkoffPriceMonitor.ViewModels
                 // Элемент не найден
             }
         }
-
 
         #endregion
     }
