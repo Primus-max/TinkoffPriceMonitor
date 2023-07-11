@@ -105,12 +105,8 @@
                                         <TextBox Text="{Binding PercentageThreshold, Mode=TwoWay}"/>
                                         <TextBlock Text="Временной интервал:"/>
                                         <TextBox Text="{Binding Interval, Mode=TwoWay}"/>
-                                        <TextBlock Text="№ группы виджетов:"/>
-                                        <TextBox Text="{Binding WidgetGroupNumber, Mode=TwoWay}"/>
-                                        <!-- Добавленное поле № группы виджетов -->
                                         <TextBlock Text="Сумма в рублях:"/>
                                         <TextBox Text="{Binding OrderAmountRubles, Mode=TwoWay}"/>
-                                        <!-- Добавленное поле Сумма в рублях -->
                                         <StackPanel HorizontalAlignment="Right">
                                             <Button Style="{StaticResource MaterialDesignFlatButton}"
                                                     Content="Удалить"
