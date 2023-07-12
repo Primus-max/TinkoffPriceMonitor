@@ -11,7 +11,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
 
-        Width="420"
+        Width="340"
         Height="600"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="SingleBorderWindow"
@@ -149,22 +149,22 @@
                         </StackPanel>
 
                         <!--<StackPanel  Orientation="Horizontal">
-                            <TextBlock Text="Chrome:"
-                                       FontWeight="Bold"
-                                       VerticalAlignment="Bottom" />
-                            <TextBox Text="{Binding SettingsModel.ChromeLocation, Mode=TwoWay}"
-                                     MinWidth="290"
-                                     MaxWidth="450"
-                                     Margin="10 0 0 0" />
+                        <TextBlock Text="Chrome:"
+                        FontWeight="Bold"
+                        VerticalAlignment="Bottom" />
+                        <TextBox Text="{Binding SettingsModel.ChromeLocation, Mode=TwoWay}"
+                        MinWidth="290"
+                        MaxWidth="450"
+                        Margin="10 0 0 0" />
                         </StackPanel>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock Text="ПинКод:"
-                                       FontWeight="Bold"
-                                       VerticalAlignment="Bottom" />
-                            <TextBox Text="{Binding SettingsModel.PinCode, Mode=TwoWay}"
-                                     MinWidth="290"
-                                     MaxWidth="450"
-                                     Margin="10 0 0 0" />
+                        <TextBlock Text="ПинКод:"
+                        FontWeight="Bold"
+                        VerticalAlignment="Bottom" />
+                        <TextBox Text="{Binding SettingsModel.PinCode, Mode=TwoWay}"
+                        MinWidth="290"
+                        MaxWidth="450"
+                        Margin="10 0 0 0" />
                         </StackPanel>-->
                     </StackPanel>
 
