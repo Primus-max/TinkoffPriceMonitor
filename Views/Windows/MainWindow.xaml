@@ -11,7 +11,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
 
-        Width="340"
+        Width="380"
         Height="600"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="SingleBorderWindow"

@@ -26,14 +26,19 @@ namespace TinkoffPriceMonitor.Views.Windows
             DataContext = _viewModel;
         }
 
+        // Добавляю группу тикеров
         private void AddGroup_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.AddTickerGroup();
         }
+
+        // Сохраняю группу тикеров
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.SaveDataToJson();
         }
+
+        // Удаляю группу тикеров
         private void DeleteGroup_Click(object sender, RoutedEventArgs e)
         {
             // Получаем DataContext выбранной группы
@@ -48,6 +53,8 @@ namespace TinkoffPriceMonitor.Views.Windows
                 SaveDataToJson();
             }
         }
+
+        // Сохраняю данные в файл
         private void SaveDataToJson()
         {
             try
@@ -70,7 +77,7 @@ namespace TinkoffPriceMonitor.Views.Windows
             }
         }
 
-
+        // Выбор элемента для перехода в терминал
         private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             _viewModel.RunTinkoffMonitor();
