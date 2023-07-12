@@ -1,14 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
 using Serilog;
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using System.Windows;
-using TinkoffPriceMonitor.Models;
 
 namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 {
@@ -44,7 +37,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 return;
             }
 
-            #region ВЫЗОВ МЕТОДОВ ДЛЯ ПОЛНОГО ЦИКЛА ТЕРМИНАЛА
+            #region ВЫЗОВ МЕТОДОВ ДЛЯ ПОЛНОГО ЦИКЛА ТЕРМИНАЛА (depricate)
             //// Перехожу на страницу терминала
             ////_driver.Navigate().GoToUrl(_tinkoffTerminalUrl);
 
@@ -123,7 +116,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
                 searchField.Clear();
                 searchField.SendKeys(_tickerName);
 
-                Thread.Sleep(100);
+                //Thread.Sleep(50);
                 // Нажатие клавиши Enter
                 searchField.SendKeys(Keys.Enter);
             }
@@ -166,7 +159,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             _driver = new ChromeDriver(service, options);
         }
 
-        #region МЕТОДЫ ДЛЯ ПОЛНОГО ЦИКЛА (если ничего не открыто)
+        #region МЕТОДЫ ДЛЯ ПОЛНОГО ЦИКЛА (depricate)
         // Проверяю открыто окно виджеты или нет
         //private bool IsOpenedWidgetsWindow()
         //{
@@ -386,6 +379,5 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         //    return settingsModel;
         //}
         #endregion
-
     }
 }

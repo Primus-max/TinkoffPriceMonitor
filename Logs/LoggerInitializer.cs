@@ -3,6 +3,9 @@ using Serilog.Formatting.Json;
 
 namespace TinkoffPriceMonitor.Logs
 {
+    /// <summary>
+    ///  Инициализация логера
+    /// </summary>
     public static class LoggerInitializer
     {
         public static void InitializeLogger()
