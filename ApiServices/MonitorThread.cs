@@ -100,9 +100,9 @@ namespace TinkoffPriceMonitor.ApiServices
 
                 return customCandle;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"Ошибка при получении свечей. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                // MessageBox.Show($"Ошибка при получении свечей. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return new Candle();
             }
         }
@@ -174,9 +174,9 @@ namespace TinkoffPriceMonitor.ApiServices
                 SharesResponse sharesResponse = await _client?.Instruments.SharesAsync();
                 share = sharesResponse?.Instruments?.FirstOrDefault(x => x.Ticker == ticker) ?? new Share();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"Не удалось получить инструмент. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                //MessageBox.Show($"Не удалось получить инструмент. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             return share;

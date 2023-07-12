@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Chrome;
 using Serilog;
 using System;
+using System.Threading;
 
 namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 {
@@ -132,10 +133,11 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
             try
             {
                 // Получаю элемент для ввода суммы
-                IWebElement inputElement = _driver.FindElement(By.CssSelector("input[type='text'][precision='0'][min='0'][max='1000000000'][tabindex='1'][locale='ru'][class='pro-input'][data-qa-tag='input']"));
+                IWebElement inputElement = _driver.FindElement(By.CssSelector("input[type='text'][precision='2'][min='0'][max='1000000000'][tabindex='1'][locale='ru'][class='pro-input'][data-qa-tag='input']"));
 
                 //Отчищаю поле
-                inputElement.Clear();
+                //inputElement.Clear();                
+
 
                 // Ввожу сумму
                 inputElement.SendKeys(_orderAmount);
@@ -158,6 +160,7 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
 
             _driver = new ChromeDriver(service, options);
         }
+
 
         #region МЕТОДЫ ДЛЯ ПОЛНОГО ЦИКЛА (depricate)
         // Проверяю открыто окно виджеты или нет
