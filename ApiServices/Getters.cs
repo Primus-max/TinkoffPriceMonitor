@@ -11,15 +11,23 @@ namespace TinkoffPriceMonitor.ApiServices
 {
     public class Getters
     {
+        /// <summary>
+        /// Получаю цену по инструменту
+        /// </summary>
+        /// <param name="instrument"></param>
+        /// <param name="client"></param>
+        /// <returns></returns>
         public static async Task<decimal> GetUpdatedPrice(Share instrument, InvestApiClient client)
         {
             try
             {
+                // формирую данные для запроса к API Tinkoff
                 var request = new GetLastPricesRequest()
                 {
                     Figi = { instrument.Figi },
                 };
 
+                // Отправляю запрос, получаю ответ
                 var response = await client.MarketData.GetLastPricesAsync(request);
 
                 var updatedInstrument = response.LastPrices.FirstOrDefault();

@@ -16,11 +16,14 @@ namespace TinkoffPriceMonitor.ApiServices
 {
     public class Creaters
     {
+        /// <summary>
+        /// Создание клиента для общения с Tinkoff API
+        /// </summary>
+        /// <returns></returns>
         public static Task<InvestApiClient> CreateClientAsync()
         {
+            // Из файла настроек получаю токен
             string? token = GetSettings().TinkoffToken;
-
-            //if (string.IsNullOrEmpty(token)) return Task.CompletedTask;
 
             var appName = "tinkoff.invest-api-csharp-sdk";
             var callCredentials = CallCredentials.FromInterceptor((_, metadata) =>

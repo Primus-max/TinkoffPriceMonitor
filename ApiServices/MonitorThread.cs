@@ -23,31 +23,32 @@ namespace TinkoffPriceMonitor.ApiServices
             _client = client;
         }
 
+        // Главный метод мониторинга
         public async Task StartMonitoringAsync()
         {
+            // Получаю тикеры по отдельности из общей строки
             string[] tickers = Group.Tickers.Split('|');
-
 
             //PriceChangeMessages.Clear();
 
             foreach (var ticker in tickers)
             {
+                // получаю инструмент (по имени тикера)
                 Share instrument = await GetShareByTicker(ticker);
 
                 if (instrument == null) continue;
 
                 int intervalMinutes = Group.Interval;
                 TimeSpan timeFrame = TimeSpan.FromMinutes(intervalMinutes);
+
+                // Получаю кастомную свечу
                 Candle customCandle = await GetCustomCandle(instrument, timeFrame);
 
                 if (customCandle is null) continue;
 
+                // Считаю проценты
                 CalculateAndDisplayPriceChange(customCandle, Group.PercentageThreshold, ticker);
             }
-
-            // Задержка перед следующей проверкой цены для данной группы
-            // await Task.Delay(Group.Interval);
-
         }
 
         // Метод для получения свечей за заданный интервал времени
@@ -58,6 +59,7 @@ namespace TinkoffPriceMonitor.ApiServices
             Timestamp nowTimestamp = Timestamp.FromDateTimeOffset(now);
             Timestamp intervalAgoTimestamp = Timestamp.FromDateTimeOffset(intervalAgo);
 
+            // Формирую объект для отправки на сервер
             var request = new GetCandlesRequest()
             {
                 InstrumentId = instrument.Uid,
@@ -68,6 +70,7 @@ namespace TinkoffPriceMonitor.ApiServices
 
             try
             {
+                // Отправляю запрос и получаю ответ по свечам
                 var response = await _client?.MarketData.GetCandlesAsync(request);
 
                 if (response?.Candles is null || response.Candles.Count == 0)
@@ -114,6 +117,7 @@ namespace TinkoffPriceMonitor.ApiServices
 
             decimal priceChangePercentage = 0;
 
+            // Логика получения процентов в зависимости от условий
             if (low > 0)
             {
                 if (open < close)
@@ -128,6 +132,7 @@ namespace TinkoffPriceMonitor.ApiServices
 
             decimal roundedPercentage = Math.Round(priceChangePercentage, 2);
 
+            // Основная логика учёта условия по заданию
             if (open < close && priceChangePercentage > p)
             {
                 TrackedTickerInfo trackedTickerInfo = new TrackedTickerInfo();
@@ -137,9 +142,8 @@ namespace TinkoffPriceMonitor.ApiServices
                 trackedTickerInfo.TickerName = ticker;
                 trackedTickerInfo.EventTime = DateTime.Now;
 
+                // Передаю информацию в метод отображения
                 PriceChangeSignal?.Invoke(trackedTickerInfo);
-                string message = $"Сигнал: Цена поднялась на {roundedPercentage:F2}%.";
-                // Дальнейшая логика или вывод сообщения
             }
             if (open > close && priceChangePercentage > p)
             {
@@ -150,16 +154,13 @@ namespace TinkoffPriceMonitor.ApiServices
                 trackedTickerInfo.TickerName = ticker;
                 trackedTickerInfo.EventTime = DateTime.Now;
 
+
+                // Передаю информацию в метод отображения
                 PriceChangeSignal?.Invoke(trackedTickerInfo);
-
-                string message = $"Сигнал: Цена снизилась на {Math.Abs(roundedPercentage):F2}%.";
-                // Дальнейшая логика или вывод сообщения
             }
-
             else
             {
-                string message = $"Сигнал: Цена изменилась, но не достаточно значительно.";
-                // Дальнейшая логика или вывод сообщения
+                // Здесь должна быть логика для других случаев, например если open = close
             }
         }
 
