@@ -132,15 +132,23 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         {
             try
             {
+                Thread.Sleep(100);
                 // Получаю элемент для ввода суммы
-                IWebElement inputElement = _driver.FindElement(By.CssSelector("input[type='text'][precision='2'][min='0'][max='1000000000'][tabindex='1'][locale='ru'][class='pro-input'][data-qa-tag='input']"));
+                IWebElement parentElement = _driver.FindElement(By.CssSelector(".src-modules-CombinedOrder-components-OrderForm-OrderForm-inputs-X1uOM"));
+                IWebElement inputElement = parentElement.FindElement(By.CssSelector("input[type='text'][precision='2'][min='0'][max='1000000000'][tabindex='1'][locale='ru'][class='pro-input'][data-qa-tag='input']:nth-of-type(2)"));
+
+
 
                 //Отчищаю поле
                 //inputElement.Clear();                
+                IJavaScriptExecutor js = (IJavaScriptExecutor)_driver;
+                js.ExecuteScript("arguments[0].value = arguments[1];", inputElement, _orderAmount);
+                // Взаимодействуйте с элементом после установки значения
+
 
 
                 // Ввожу сумму
-                inputElement.SendKeys(_orderAmount);
+                //inputElement.SendKeys(_orderAmount);
             }
             catch (Exception ex)
             {

@@ -78,22 +78,21 @@ namespace TinkoffPriceMonitor.ApiServices
                     return new Candle();
                 }
 
-                // Создание свечи для заданного интервала времени
-                Candle customCandle = new Candle
+                int x = (int)timeFrame.TotalMinutes;
+
+                if (x > response.Candles.Count)
                 {
-                    Open = decimal.MaxValue,
-                    Close = decimal.MinValue,
-                    High = decimal.MinValue,
-                    Low = decimal.MaxValue
-                };
+                    return new Candle();
+                }
 
-
+                Candle customCandle = new Candle();
+                customCandle.Open = response.Candles[0].Open;
+                customCandle.Close = response.Candles[x - 1].Close;
+                customCandle.High = decimal.MinValue;
+                customCandle.Low = decimal.MaxValue;
 
                 foreach (var candle in response.Candles)
                 {
-                    // Обновление значений свечи на основе данных из полученных свечей
-                    customCandle.Open = Math.Min(customCandle.Open, candle.Open);
-                    customCandle.Close = Math.Max(customCandle.Close, candle.Close);
                     customCandle.High = Math.Max(customCandle.High, candle.High);
                     customCandle.Low = Math.Min(customCandle.Low, candle.Low);
                 }
@@ -102,10 +101,12 @@ namespace TinkoffPriceMonitor.ApiServices
             }
             catch (Exception)
             {
-                // MessageBox.Show($"Ошибка при получении свечей. Причина: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Обработка ошибки при получении свечей
                 return new Candle();
             }
         }
+
+
 
         // Метод для вычисления процентного изменения цены
         private void CalculateAndDisplayPriceChange(Candle customCandle, decimal p, string ticker)
