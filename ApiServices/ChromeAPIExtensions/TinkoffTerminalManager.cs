@@ -2,6 +2,8 @@
 using OpenQA.Selenium.Chrome;
 using Serilog;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
@@ -132,23 +134,16 @@ namespace TinkoffPriceMonitor.ApiServices.ChromeAPIExtensions
         {
             try
             {
-                Thread.Sleep(100);
                 // Получаю элемент для ввода суммы
                 IWebElement parentElement = _driver.FindElement(By.CssSelector(".src-modules-CombinedOrder-components-OrderForm-OrderForm-inputs-X1uOM"));
-                IWebElement inputElement = parentElement.FindElement(By.CssSelector("input[type='text'][precision='2'][min='0'][max='1000000000'][tabindex='1'][locale='ru'][class='pro-input'][data-qa-tag='input']:nth-of-type(2)"));
+                // Получаю все инпуты в родителе
+                List<IWebElement> inputElements = parentElement.FindElements(By.CssSelector("input")).ToList();
+                // Беру второй инпут
+                IWebElement secondInputElement = inputElements[1];
 
-
-
-                //Отчищаю поле
-                //inputElement.Clear();                
+                // Вставляю значение
                 IJavaScriptExecutor js = (IJavaScriptExecutor)_driver;
-                js.ExecuteScript("arguments[0].value = arguments[1];", inputElement, _orderAmount);
-                // Взаимодействуйте с элементом после установки значения
-
-
-
-                // Ввожу сумму
-                //inputElement.SendKeys(_orderAmount);
+                js.ExecuteScript("arguments[0].value = arguments[1];", secondInputElement, _orderAmount);
             }
             catch (Exception ex)
             {
